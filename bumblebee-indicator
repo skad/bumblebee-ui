@@ -68,8 +68,7 @@ class BumblebeeIndicator():
                 
         self.card_state=False
 
-	[vgl_display]=[re.sub(r'VGL_DISPLAY=:(.*)\n', r'\1', line) for line in open(app.Config.config_file_path) if 'VGL_DISPLAY' in line]
-	self.lock_file = "/tmp/.X%s-lock" % vgl_display
+	self.lock_file = "/tmp/.X%s-lock" % app.Config.vgl_display
 
         self.build_menu()
 

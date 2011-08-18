@@ -29,7 +29,6 @@
 
 import os
 import glob
-import re
 import gtk
 import ConfigParser
 
@@ -62,7 +61,16 @@ to_unconfigure_color='#FF0033'
 
 #BUMBLEBEE DEFAULT CONFIGURATION
 config_file_path='/etc/bumblebee/bumblebee.conf'
-[default_compression]=[re.sub(r'VGL_COMPRESS=(.*)\n', r'\1', line) for line in open(config_file_path) if 'VGL_COMPRESS' in line]
+#GET BUMBLEBEE CONFIGURATION VALUE
+def get_config_value(variable_name):
+	"""Function to get configuration value inside a shell script"""
+	for line in open(config_file_path):
+		if variable_name in line:	
+			variable, value= line.split('=',1)
+	return value.replace("\n","")
+
+default_compression= get_config_value('VGL_COMPRESS')
+vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
 
 #CATEGORIES CONFIGURATION
 
