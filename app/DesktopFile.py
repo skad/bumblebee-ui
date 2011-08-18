@@ -48,7 +48,6 @@ class DesktopFileSet:
 	def __init__(self):
 		self.get_local()
 		self.get_global()
-		#self.get_configured_from_check()
 
 	def get_desktop_file_set(self, directory):
 		return set([re.sub(r'(.*)\.desktop',r'\1',x) for x in glob.glob1( directory, '*.desktop' )])
@@ -59,19 +58,15 @@ class DesktopFileSet:
 	def get_global (self):
 		self.global_set = self.get_desktop_file_set(Config.global_desktop_file_directory) - self.local_set
 
-	##CAN BE TEST SO THERE IS NO CONFIGURATION FILE BUT THE UPLOAD IS LONGER
-	#FIXME The preferred app list should be check dynamically with a special function to parse user file( conf is needed when bumblebee indicator change
 	def get_configured_from_check (self):
 		self.get_local()
 		self.configured_set = set([ app for app in list(self.local_set) if DesktopFile(app).is_configured() ])
-		print "The list of configured app is get by parsing the local desktop files"
 	
 	def get_apps_info (self):
 		for file_name in self.local_set: 
 			desktop_file = DesktopFile(file_name, local=True)
 			app_info_list = desktop_file.get_app_info()
 			app_config = desktop_file.get_app_config()
-			if app_config[0]==True : self.configured_set.add(file_name)
 			yield app_info_list + [True] + app_config
 		for file_name in self.global_set:
 			app_info_list = DesktopFile(file_name, local=False).get_app_info()
@@ -88,7 +83,6 @@ class DesktopFileSet:
 			self.global_set.remove(file_name)
 			print 'Bumblebee Shortcuts added to a desktop file created: ' + file_name
 		else : print "ERROR : The app name of configured file is not recognized"
-		self.configured_set.add(file_name)
 
 	def unconfigure_file (self, file_name):
 		if DesktopFile(file_name).unconfigure_file():
@@ -96,7 +90,6 @@ class DesktopFileSet:
 			self.global_set.add(file_name)
 			print 'Desktop file created for Bumblebee removed: ' + file_name
 		else: print 'Desktop file modified for Bumblebee is unconfigured: ' + file_name
-		self.configured_set.remove(file_name)
 
 #TODO : Rewrite in order to allow use of the script without user interface		
 

@@ -37,7 +37,6 @@ import pynotify
 
 #SYSTEM MODULE
 import os
-import re
 import subprocess
 
 ###ORIGINAL CLASS
@@ -166,18 +165,18 @@ class BumblebeeIndicator():
         self.switch.set_active(False)
 
     def app_configure(self,widget):
-	Applications_settings(file_set=file_set)
+	Applications_settings()
 
     def call_app(self, widget, app_exec):
 	#FIXME There is a problem when closing the launched app and when the indicator has been closed: the indicator is still running : What a daemon!!
         subprocess.Popen(app_exec,shell=False)
  
-    def about_box(self, widget, data=None):
-	    dialog = gtk.MessageDialog(None, type=gtk.MESSAGE_INFO,buttons=gtk.BUTTONS_NONE,message_format="Preferences/About")
-	    dialog.format_secondary_text("This is Optimus by mrs_sheep. \n It is based on bumblebee by MrMEEE. \n The configuration can (by now) only be set thorugh the config file!")
-	    dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
-	    dialog.run()
-	    dialog.destroy()
+#    def about_box(self, widget, data=None):
+#	    dialog = gtk.MessageDialog(None, type=gtk.MESSAGE_INFO,buttons=gtk.BUTTONS_NONE,message_format="Preferences/About")
+#	    dialog.format_secondary_text("This is Optimus by mrs_sheep. \n It is based on bumblebee by MrMEEE. \n The configuration can (by now) only be set thorugh the config file!")
+#	    dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
+#	    dialog.run()
+#	    dialog.destroy()
 
 
     def main(self):

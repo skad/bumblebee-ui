@@ -70,17 +70,14 @@ class Applications_settings():
 	
 	def delete_event(self,widget,event,data=None):
 		return False
-		
-	##FIXME There is a problem with subprocess: there is maybe a cleaner way to get it
 
 	def destroy(self,widget): 
 		if __name__=="__main__": gtk.main_quit()
 		else : self.window.destroy()
 		
-	def __init__(self, file_set=DesktopFileSet()):
+	def __init__(self):
 		#FIXME Seems not to be clean or shorter enough
-		self.file_set=file_set
-		
+		self.file_set=DesktopFileSet()
 		self.icon_set=IconSet()
 		### MAIN WINDOW
 		self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
