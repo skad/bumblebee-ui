@@ -65,7 +65,7 @@ to_configure_color='#FFFF33'
 to_unconfigure_color='#FF0033'
 
 #BUMBLEBEE DEFAULT CONFIGURATION
-config_file_path='/etc/default/bumblebee'
+config_file_path='/etc/bumblebee/bumblebee.conf'
 [default_compression]=[re.sub(r'VGL_COMPRESS=(.*)\n', r'\1', line) for line in open(config_file_path) if 'VGL_COMPRESS' in line]
 
 #CATEGORIES CONFIGURATION
