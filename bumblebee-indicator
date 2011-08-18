@@ -50,14 +50,12 @@ class BumblebeeIndicator():
     def notify_state(self, title, msg, icon_name):
 	self.notification= pynotify.Notification(title, msg, IconSet().get_uri(icon_name,48))
         self.notification.set_urgency(pynotify.URGENCY_CRITICAL)
-        #self.notification.set_timeout(pynotify.EXPIRES_NEVER) ######   NICE TO SHOW A MESSAGE SIMPLY
 	#FIXME The notification is to slow and this doesn't work
         #self.notification.set_timeout(1000)
         self.notification.show()
 
 ###INITIALIZATION OF INDICATOR AND MENU
     def __init__(self):
-	#TODO Choose the best category for the indicator : appindicator.CATEGORY_APPLICATION_STATUS or appindicator.CATEGORY_SYSTEM_SERVICES
         self.ind = appindicator.Indicator ("bumblebee-indicator", "bumblebee-indicator", appindicator.CATEGORY_HARDWARE)
         self.ind.set_status (appindicator.STATUS_ACTIVE)
         self.ind.set_icon_theme_path(app.Config.icon_file_directory)
@@ -84,7 +82,7 @@ class BumblebeeIndicator():
         self.switch.set_sensitive(False)
         self.menu.append(self.switch)
 	
-        self.build_menu_separator()
+        self.build_menu_separator(self.menu)
 	
         self.prefered_app_submenu = gtk.MenuItem("Preferred Apps")
         self.update_menu()
@@ -97,11 +95,7 @@ class BumblebeeIndicator():
         
 	#TODO An UI to configure Bumblebee would be nice
 	    
-     	#item3 = gtk.MenuItem("Configure Bumblebee")
-        #item3.show()
-        #self.menu.append(item3)
-	    
-        self.build_menu_separator()
+        self.build_menu_separator(self.menu)
         
         quit = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         quit.connect("activate", self.quit)
@@ -109,33 +103,28 @@ class BumblebeeIndicator():
         
         self.menu.show_all()
 
-    def build_menu_separator(self):
+    def build_menu_separator(self, menu):
     	separator = gtk.SeparatorMenuItem()
     	separator.show()
-        self.menu.append(separator)
+        menu.append(separator)
 
-#FUNCTION TO GET THE MENU FROM THE CONFIG FILE
+# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE CONFIG FILE
     def update_menu(self, widget=None):	
-        self.pref_menu=gtk.Menu()
-        subitem = gtk.MenuItem("Glxgears")
-        subitem.connect("activate", self.call_app, ['optirun', 'glxgears'])
-        subitem.show()
-        self.pref_menu.append(subitem)
-	file_set.get_configured_from_check()
-	for file_name in file_set.configured_set:
-            [Name, File_name, Categorie, Icon_name]  = DesktopFile(file_name).get_app_info()
-            subitem = gtk.MenuItem(label=Name)
-            #TODO : Discuss about style : is an icon needed for this simple shortcut
-            #subitem = gtk.ImageMenuItem()
-            #subitem.set_image(gtk.image_new_from_pixbuf(IconSet().get_pixbuf(Icon_name,icon_size=gtk.ICON_SIZE_MENU)))
-            #subitem.set_label(Name)
-            subitem.connect("activate", self.call_app, DesktopFile(file_name).get_exec_list())
-            subitem.show()
-            self.pref_menu.append(subitem)
-        self.pref_menu.show()
-        self.prefered_app_submenu.set_submenu(self.pref_menu)
+        pref_menu=gtk.Menu()
+	self.add_submenu_items( pref_menu, app.Config.default_preferred_apps )
+	self.build_menu_separator( pref_menu )
+	self.add_submenu_items( pref_menu, DesktopFileSet().get_configured_from_check() )
+        pref_menu.show()
+        self.prefered_app_submenu.set_submenu(pref_menu)
 
+    def add_submenu_items(self, submenu, items_list):
+	for Name, Exec_list in items_list : 
+		subitem = gtk.MenuItem(label=Name)
+		subitem.connect("activate", self.call_app, Exec_list)
+        	subitem.show()
+		submenu.append( subitem )
 
+# FUNCTIONS TO GET THE STATE OF THE INDICATOR
     def initial_state_checker(self):
 	    if self.attention_state_condition(): self.set_attention_state(notify=False)
 	    else : self.set_active_state(notify=False)
@@ -150,6 +139,7 @@ class BumblebeeIndicator():
 	    if os.path.exists(self.lock_file): return True
 	    else: return False
 
+# FUNCTIONS TO SET THE STATE OF THE INDICATOR AND LAUNCH NOTIFICATION
     def set_attention_state(self, notify=True):
         self.ind.set_status(appindicator.STATUS_ATTENTION)
         self.card_state = True
@@ -164,21 +154,17 @@ class BumblebeeIndicator():
         self.switch.set_label("Discrete card : OFF")
         self.switch.set_active(False)
 
+# FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
+
     def app_configure(self,widget):
 	Applications_settings()
 
+# FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR
     def call_app(self, widget, app_exec):
 	#FIXME There is a problem when closing the launched app and when the indicator has been closed: the indicator is still running : What a daemon!!
         subprocess.Popen(app_exec,shell=False)
- 
-#    def about_box(self, widget, data=None):
-#	    dialog = gtk.MessageDialog(None, type=gtk.MESSAGE_INFO,buttons=gtk.BUTTONS_NONE,message_format="Preferences/About")
-#	    dialog.format_secondary_text("This is Optimus by mrs_sheep. \n It is based on bumblebee by MrMEEE. \n The configuration can (by now) only be set thorugh the config file!")
-#	    dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
-#	    dialog.run()
-#	    dialog.destroy()
 
-
+# MAIN LOOP LAUNCHING A STATE CHECK EVERY TWO SECONDS
     def main(self):
         self.state_checker()
         #FIXME It would be nice to avoid this loop : Maybe by using a signal emitted by the system
@@ -187,8 +173,6 @@ class BumblebeeIndicator():
         gtk.main()
 
 if __name__ == "__main__":
-
-    file_set=DesktopFileSet()
     indicator = BumblebeeIndicator()
     indicator.main()
 

@@ -59,8 +59,10 @@ class DesktopFileSet:
 		self.global_set = self.get_desktop_file_set(Config.global_desktop_file_directory) - self.local_set
 
 	def get_configured_from_check (self):
-		self.get_local()
-		self.configured_set = set([ app for app in list(self.local_set) if DesktopFile(app).is_configured() ])
+		for app in list(self.local_set):
+			desktop_file = DesktopFile(app)
+			if desktop_file.is_configured():
+				yield [ desktop_file.get_app_info()[0], desktop_file.get_exec_list() ]
 	
 	def get_apps_info (self):
 		for file_name in self.local_set: 

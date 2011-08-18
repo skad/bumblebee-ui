@@ -28,9 +28,7 @@
 ### END LICENSE
 
 import os
-import glob
 import gtk
-import ConfigParser
 
 #DESKTOP FILES PATH
 user_home_directory = os.path.expanduser('~')
@@ -85,6 +83,10 @@ categorie_list=[['Game',	'applications-games'],
 		['Utility',	'applications-utilities']]
 unmatch_categorie=['Miscellaneous','applications-other']
 uncategorized_categorie=['Uncategorized', 'application-x-executable']
+
+#DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
+default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
+			  ['Glxspheres', ['optirun', 'glxspheres']] ]
 
 #TODO : There might be a way to use string formatting to simplify the config definition
 #FIXME There must be a better way to store config
