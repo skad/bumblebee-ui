@@ -42,7 +42,7 @@ class BumblebeeIndicator():
     def notify_state(self, title, msg, icon_name):
         self.notification= pynotify.Notification(title, msg, IconSet().get_uri(icon_name,48))
         self.notification.set_urgency(pynotify.URGENCY_CRITICAL)
-#FIXME The notification is to slow and this doesn't work
+        #FIXME The notification is to slow and this doesn't work
         #self.notification.set_timeout(1000)
         self.notification.show()
 
@@ -123,7 +123,7 @@ class BumblebeeIndicator():
     def state_checker(self):
         if self.attention_state_condition():
             if self.card_state == False : self.set_attention_state()
-            elif self.card_state == True: self.set_active_state()	
+        elif self.card_state == True: self.set_active_state()	
         return True
 	
     def attention_state_condition(self):
