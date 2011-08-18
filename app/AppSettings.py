@@ -37,24 +37,6 @@ import os
 import Config
 from DesktopFile import DesktopFile, DesktopFileSet
 
-#CREATE FILE IF NOT EXIST
-if os.path.exists(Config.ui_config_file_path):
-	print "Using configuration file: " + Config.ui_config_file_path
-else:
-        print "Configuration File does not exist, creating.."
-        configdir = os.path.dirname(Config.ui_config_file_directory)
-        try:
-        	os.stat(configdir)
-        except:
-		os.mkdir(configdir)
-                
-        file = open(Config.ui_config_file_path, 'w')
-        file.write("[Bumblebee UI]\n")
-        file.write("preferred_app = []\n")
-        file.write("\n")
-	file.close()
-                                                
-
 #ICON CONFIGURATION
 class IconSet:
 	"""This small class contain the settings computed for categories"""
@@ -358,7 +340,6 @@ class Applications_settings():
 						False, False, False, Config.to_configure_color)
 		self.to_unconfigure_file.clear()
 		self.config_app_view.expand_all()
-		self.file_set.store_configured()
 
 	def apply_app_change (self, iter, file_name, actions, configured, mode, display_bg, bg_color):
 		actions[0](file_name)

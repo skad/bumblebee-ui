@@ -65,12 +65,11 @@ class BumblebeeIndicator():
 	#TODO The icons style and accesibility must be enhanced : see icons/test directory
     	self.ind.set_icon(app.Config.icon_file_directory + "bumblebee-indicator.svg",'Bumblebee is unactive')
         self.ind.set_attention_icon (app.Config.icon_file_directory + "bumblebee-indicator-active.svg",'Bumblebee is active')
-	
-	[vgl_display]=[re.sub(r'VGL_DISPLAY=:(.*)\n', r'\1', line) for line in open(app.Config.config_file_path) if 'VGL_DISPLAY' in line]
-	self.lock_file = "/tmp/.X%s-lock" % vgl_display
-	print self.lock_file
                 
         self.card_state=False
+
+	[vgl_display]=[re.sub(r'VGL_DISPLAY=:(.*)\n', r'\1', line) for line in open(app.Config.config_file_path) if 'VGL_DISPLAY' in line]
+	self.lock_file = "/tmp/.X%s-lock" % vgl_display
 
         self.build_menu()
 
@@ -124,7 +123,7 @@ class BumblebeeIndicator():
         subitem.connect("activate", self.call_app, ['optirun', 'glxgears'])
         subitem.show()
         self.pref_menu.append(subitem)
-	file_set.get_configured_from_cfg()
+	file_set.get_configured_from_check()
 	for file_name in file_set.configured_set:
             [Name, File_name, Categorie, Icon_name]  = DesktopFile(file_name).get_app_info()
             subitem = gtk.MenuItem(label=Name)
@@ -150,7 +149,7 @@ class BumblebeeIndicator():
 	    return True
 	
     def attention_state_condition(self):
-	    if  os.path.exists(self.lock_file): return True
+	    if os.path.exists(self.lock_file): return True
 	    else: return False
 
     def set_attention_state(self, notify=True):
@@ -172,7 +171,7 @@ class BumblebeeIndicator():
 
     def call_app(self, widget, app_exec):
 	#FIXME There is a problem when closing the launched app and when the indicator has been closed: the indicator is still running : What a daemon!!
-	    subprocess.Popen(app_exec,shell=False)
+        subprocess.Popen(app_exec,shell=False)
  
     def about_box(self, widget, data=None):
 	    dialog = gtk.MessageDialog(None, type=gtk.MESSAGE_INFO,buttons=gtk.BUTTONS_NONE,message_format="Preferences/About")

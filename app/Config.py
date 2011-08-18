@@ -42,10 +42,6 @@ global_desktop_file_directory = '/usr/share/applications/'
 #ICONS FILE PATH
 icon_file_directory = '/usr/share/bumblebee-ui/icons/'
 
-#CONFIG FILES PATH
-ui_config_file_directory = user_desktop_file_directory
-ui_config_file_path = ui_config_file_directory + 'bumblebee-ui.cfg'
-
 #ACCEPTED COMPRESSION
 compression_list=['jpeg','proxy','rgb','yuv','xv']
 
