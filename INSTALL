@@ -32,9 +32,6 @@
 ########################################
 #NEED TO BE TESTED
 
-#Copy ecoptirun : a modified script to take up to date manually
-#cp ecoptirun /usr/local/bin --> Moved to the bumblebee project..
-
 #Copy software files /app, /icons, bumblebee-indicator in /usr/local/bin
 cp -R app/ /usr/local/bin/app
 cp -R icons/ /usr/local/bin/icons
@@ -53,7 +50,6 @@ cp icons/bumblebee.svg /usr/share/icons/
 #Set the correct right for some files
 chmod +x /usr/local/bin/bumblebee-indicator
 chmod +x /usr/local/bin/app/*
-chmod +x /usr/local/bin/ecoptirun
 chmod +x /usr/share/applications/bumblebee-app-settings.desktop
 chmod +x /usr/share/applications/bumblebee-indicator.desktop
 
