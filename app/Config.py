@@ -55,9 +55,8 @@ config_file_path='/etc/bumblebee/bumblebee.conf'
 def get_config_value(variable_name):
     """Function to get configuration value inside a shell script"""
     for line in open(config_file_path):
-        if variable_name in line:	
-            variable, value= line.split('=',1)
-    return value.replace("\n","")
+        if variable_name in line:
+            return line.split('=',1)[1].replace("\n","")
 
 default_compression= get_config_value('VGL_COMPRESS')
 vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
@@ -79,6 +78,13 @@ uncategorized_categorie=['Uncategorized', 'application-x-executable']
 #DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
 default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
                         ['Glxspheres', ['optirun', 'glxspheres']] ]
+
+#NOTIFICATION MESSAGES :
+#TODO Revert when the possibility to turn off the card is back
+attention_label="Bumblebee : ON"
+attention_comment="Bumblebee is in use"
+active_label="Bumblebee : OFF"
+active_comment="Bumblebee is not used anymore"
 
 #TODO : There might be a way to use string formatting to simplify the config definition
 #FIXME There must be a better way to store config

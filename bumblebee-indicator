@@ -132,19 +132,24 @@ class BumblebeeIndicator():
 
 # FUNCTIONS TO SET THE STATE OF THE INDICATOR AND LAUNCH NOTIFICATION
     def set_attention_state(self, notify=True):
-        self.ind.set_status(appindicator.STATUS_ATTENTION)
-        self.card_state = True
-        if notify == True: self.notify_state("Discrete card : ON", "Discrete graphic card is powered on", "bumblebee-indicator-active")
-        self.switch.set_label("Discrete card : ON")
-        self.switch.set_active(True)
+        self.set_status(True, appindicator.STATUS_ATTENTION, 
+                        app.Config.attention_label, 
+                        app.Config.attention_comment, 
+                        "bumblebee-indicator-active", notify)
 
     def set_active_state(self, notify=True):
-        self.ind.set_status(appindicator.STATUS_ACTIVE)
-        self.card_state = False
-        if notify == True: self.notify_state("Discrete card : OFF", "Discrete graphic card is powered off", "bumblebee-indicator")
-        self.switch.set_label("Discrete card : OFF")
-        self.switch.set_active(False)
-
+        self.set_status(False, appindicator.STATUS_ACTIVE, 
+                        app.Config.active_label, 
+                        app.Config.active_comment,  
+                        "bumblebee-indicator", notify)
+    
+    def set_status(self, status, indicator, label, comment, icon, notify):
+        self.ind.set_status(indicator)
+        self.card_state = status
+        if notify == True: self.notify_state(label, comment, icon)
+        self.switch.set_label(label)
+        self.switch.set_active(status)
+        
 # FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
 
     def app_configure(self,widget):
