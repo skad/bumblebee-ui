@@ -68,10 +68,10 @@ class DesktopFileSet:
 		
     def configure_file (self, file_name):
         if file_name in self.local_set:
-            DesktopFile(file_name, local=True).add_shortcuts() #False : don't add the tag : created for bumblebee
+            DesktopFile(file_name, local=True).configure_file() #False : don't add the tag : created for bumblebee
             print 'Bumblebee Shortcuts added to: ' + file_name
         elif file_name in self.global_set:	
-            DesktopFile(file_name, local=False).add_shortcuts() #True : add the tag : created for bumblebee
+            DesktopFile(file_name, local=False).configure_file() #True : add the tag : created for bumblebee
             self.local_set.add(file_name)
             self.global_set.remove(file_name)
             print 'Bumblebee Shortcuts added to a desktop file created: ' + file_name
@@ -189,13 +189,13 @@ class DesktopFile:
     def configure_file(self):
         """Function to configure the local or global desktop file"""
         if self.local == False:
-            try : self.config.set('Desktop Entry', 'Comment', self.config.get('Desktop Entry','Comment') + '(Bumblebee enabled)')
+            try : self.config.set('Desktop Entry', 'Comment', self.config.get('Desktop Entry','Comment') + ' (created for Bumblebee)')
             except ConfigParser.NoOptionError: 
-                self.config.set('Desktop Entry', 'Comment', 'This file has been created for Bumblebee (Bumblebee enabled)')		
+                self.config.set('Desktop Entry', 'Comment', 'This file has been created for Bumblebee.')		
             self.add_shortcuts()
             os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
         elif self.local == True:
-            self.add_shortcuts
+            self.add_shortcuts()
 		
     def add_shortcuts(self):
         """Function to add shorcut section for bumblebee and add a shortcut to the desktop file object"""
@@ -224,7 +224,7 @@ class DesktopFile:
     def is_created(self):
         """Function to check if the file is tagged as created for Bumblebee or not"""
         try:  #FIXME Bumblebee Enable must not be set in comment but somewhere else 
-            if 'Bumblebee enabled' in self.config.get('Desktop Entry','Comment'): return True
+            if 'created for Bumblebee' in self.config.get('Desktop Entry','Comment'): return True
             else : return False 
         except ConfigParser.NoOptionError: return False 
 
