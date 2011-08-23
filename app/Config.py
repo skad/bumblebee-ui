@@ -40,6 +40,7 @@ mode_keys={'perf':"Performance",
 
 #ICON FILES THEME
 icon_size=24
+default_icon_name='application-x-executable'
 
 #APP SETTINGS COLOR THEME
 configured_color='#00FF33'
