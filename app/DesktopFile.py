@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
 #
@@ -232,11 +232,15 @@ class SetDesktop:
 
     def writeEntry(self):     
         try : 
-            #self.entry.validate()
-            self.entry.write(self.local_path)
+            self.entry.validate()
         except ValidationError, e:
             print e
-            #print 'The file to write is not valid : %s' % self.entry
+            print 'The file to write is not valid according to XDG specifications: %s' % self.entry
+        finally : 
+            self.entry.write(self.local_path)
+        #TODO The permission are not set properly : why ? it worked on the previous version
+            os.chmod(self.local_path,0755)
+        
 
 #TODO Write a new class : to get the configuration inside the MODEL desktop files
 #class BumblebeeModelDesktop:

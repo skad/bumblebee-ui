@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
 #
@@ -26,6 +26,20 @@ import gtk
 
 #BUMBLEBEE DEFAULT CONFIGURATION
 config_file_path='/etc/bumblebee/bumblebee.conf'
+optirun_installation_path='/usr/local/bin/optirun'
+
+icon_file_directory = '/usr/share/bumblebee-ui/icons/'
+#TEST IF OPTIRUN IS INSTALLED
+def check_install(name, path):
+    try :
+        os.path.exists(path)
+        os.access(path, os.X_OK)
+    except : 
+        print "Install check : {0} is lacking or don't have the good right at this adress {1}".format(name, path)
+        quit()
+
+check_install('Bumblebee configuration file', config_file_path)
+check_install('Optirun',optirun_installation_path)
 
 #ICONS FILE PATH
 icon_file_directory = '/usr/share/bumblebee-ui/icons/'

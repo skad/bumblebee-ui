@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- Mode: Python; coding: utf-8; indent-tabs-mode: nil; tab-width: 4 -*-
 ### BEGIN LICENSE
 #
@@ -176,11 +176,13 @@ class Applications_settings():
         #button.set_size_request(width=100,height=-1)
         button.connect("clicked",action)
         return button
-
+    
     def buildMenu(self, menu=xdg.Menu.parse(), category=None):
-		"""Function to build the store with this columns :
-        *Application Name or Categorie Name, *File Name, *Application Categorie, *Application Icon Path, Is Not Category, Configured, (Selected by default), Mode,  32bits, Compression, Background display, Background color
-        for categories : Categorie Name, None, None, Icon Path, False , Has child configured, False, None, 
+        """Function to build the store with this columns  \
+        *Application Name or Categorie Name, *File Name, *Application Categorie, \
+        *Application Icon Path, Is Not Category, Configured, (Selected by default), \
+        Mode,  32bits, Compression, Background display, Background color \
+        for categories : Categorie Name, None, None, Icon Path, False , Has child configured, False, None, \
         """
         for entry in menu.getEntries():
             if isinstance(entry, xdg.Menu.Menu):
@@ -259,7 +261,7 @@ class Applications_settings():
         elif Configured==False and Selected==False : #The app is not configured and unselected: Nothing to apply
             self.app_list[row][10]=False
             del self.to_configure_file[self.app_list[row][1]]
-	
+    	
     def build_config_view(self):
         """Function to create a setting list for applications configured for Bumblebee"""
         # APPLICATION NAME COLUMNS
@@ -360,16 +362,16 @@ class Applications_settings():
 		
     def main(self):
         gtk.main()
-        return 0			
+        return 0
+        		
 if __name__ == "__main__":
-	
     pid_file = 'bumblebee-app-settings.pid'
     fp = open(pid_file, 'w')
     app_settings = Applications_settings()
     try:
-        fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)	
-		app_settings.main()
+        fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        app_settings.main()
     except IOError:
-        print "Another instance of bumblebee-app-settings is running {0}: Quit".format(str(os.getpid()))
+        print "Another instance of bumblebee-app-settings is running : Quit"
         quit()
-
+    
