@@ -34,7 +34,7 @@ import os
 import subprocess
 
 # ORIGINAL CLASS
-import app.DesktopEntry
+import app.DesktopFile
 import app.Config
 from app.AppSettings import IconSet
 import fcntl
@@ -77,7 +77,7 @@ class BumblebeeIndicator():
         self.menu.append(self.switch)
         
         self.build_menu_separator(self.menu)
-                
+               
         self.prefered_app_submenu = gtk.MenuItem("Preferred Apps")
         self.update_menu()
         self.prefered_app_submenu.connect('activate', self.update_menu)
@@ -103,20 +103,14 @@ class BumblebeeIndicator():
         menu.append(separator)
 
 # FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
-    def build_pref_menu(self):	
+    def update_menu(self, widget=None):	
         pref_menu=gtk.Menu()
         for item_info in app.Config.default_preferred_apps:
             self.add_submenu_item( pref_menu, item_info)
-        #self.add_submenu_item( pref_menu, app.Config.default_preferred_apps )
     	self.build_menu_separator( pref_menu )
-        self.getConfiguredEntries( pref_menu )
-        #self.add_submenu_item( pref_menu, DesktopFileSet().get_configured_from_check() )
+        self.get_configured_entries( pref_menu )
         pref_menu.show()
-        return pref_menu
-        
-    def update_menu(self, widget=None):
-        self.prefered_app_submenu.set_submenu(self.build_pref_menu())
-        self.prefered_app_submenu.show()
+        self.prefered_app_submenu.set_submenu( pref_menu )
 
     def add_submenu_item(self, submenu, item_info):
         [Name, Exec] = item_info
@@ -125,44 +119,16 @@ class BumblebeeIndicator():
         subitem.show()
         submenu.append( subitem )
 
-# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
-#TODO : Need refinement however it works	
-#	def update_configured_list (self, submenu, menu=xdg.Menu.parse()):
-#        for entry in menu.getEntries():
-#            if isinstance(entry, xdg.Menu.Menu):
-#                self.update_configured_list(submenu, entry)
-#            elif isinstance(entry, xdg.Menu.MenuEntry):
-#                desktopEntry=app.DesktopEntry.GetDesktop(entry)
-#                if desktopEntry.isConfigured():#
-#					print "This is a configured entry : {0}".format(entry)
-#					self.add_submenu_items( submenu, [ desktopEntry.getConfiguredEntry() ]) 
-					
-    def getConfiguredEntries(self, submenu, menu=xdg.Menu.parse()):
+# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE MENU FILE
+#FIXME : The menu is not updated		
+    def get_configured_entries(self, submenu, menu=xdg.Menu.parse()):
         for entry in menu.getEntries():
             if isinstance(entry, xdg.Menu.Menu):
-                self.getConfiguredEntries(submenu, entry)
+                self.get_configured_entries(submenu, entry)
             elif isinstance(entry, xdg.Menu.MenuEntry):
-                desktopEntry=app.DesktopEntry.GetDesktop(entry)
+                desktopEntry=app.DesktopFile.GetDesktop(entry)
                 if desktopEntry.isConfigured():
                     self.add_submenu_item(submenu, desktopEntry.getConfiguredEntry())
- 
-#    def update_menu(self, widget=None):	
-#        pref_menu=gtk.Menu()
-#        self.add_submenu_items( pref_menu, app.Config.default_preferred_apps )
-#        self.build_menu_separator( pref_menu )#
-#	    self.update_configured_list( pref_menu)
-#        self.getConfiguredEntries()
-#	    self.menu_updated+=1 
-#	    print "The menu is updated for the {0} time".format(self.menu_updated)
-#        pref_menu.show()
-#        self.prefered_app_submenu.set_submenu( pref_menu )
-
-#    def add_submenu_items(self, submenu, items_list):
-#        for Name, Exec_list in items_list :
-#            subitem = gtk.MenuItem(label=Name)
-#            subitem.connect("activate", self.call_app, Exec_list)
-#        	subitem.show()
-#            submenu.append( subitem )
 
 # FUNCTIONS TO CHECK FOR THE STATE OF THE INDICATOR
     def initial_state_checker(self):
@@ -215,10 +181,12 @@ class BumblebeeIndicator():
         subprocess.Popen(app_exec,shell=False)
 
 # MAIN LOOP LAUNCHING A STATE CHECK EVERY TWO SECONDS
+#FIXME This check every two second could be avoid if bumblebee send this signal through dbus with this shell commands,
+#The indicator will then know in real time the state of bumblebee and later of the card with an other signal : bumblebee : the code is already there to receive this signal : think to add this two lines at the good place in the ubuntu devel release
+#dbus-send --session --dest=org.bumblebee.indicator /org/bumblebee/indicator org.bumblebee.indicator.BumblebeeStarted
+#dbus-send --session --dest=org.bumblebee.indicator /org/bumblebee/indicator org.bumblebee.indicator.BumblebeeStopped
     def main(self):
         self.state_checker()
-#FIXME It would be nice to avoid this loop : Maybe by using a signal emitted by the system
-        #gtk.timeout_add(2000,self.state_checker)
         gobject.timeout_add_seconds(2, self.state_checker)
         gtk.main()
 
