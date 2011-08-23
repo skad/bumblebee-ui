@@ -22,11 +22,10 @@
 import os
 import gtk
 
-#DESKTOP FILES PATH
-user_home_directory = os.path.expanduser('~')
-user_relative_desktop_file_directory = '/.local/share/applications/'
-user_desktop_file_directory = user_home_directory + user_relative_desktop_file_directory
-global_desktop_file_directory = '/usr/share/applications/'
+### APPLICATIONS MENU CONFIG ###
+
+#BUMBLEBEE DEFAULT CONFIGURATION
+config_file_path='/etc/bumblebee/bumblebee.conf'
 
 #ICONS FILE PATH
 icon_file_directory = '/usr/share/bumblebee-ui/icons/'
@@ -35,22 +34,18 @@ icon_file_directory = '/usr/share/bumblebee-ui/icons/'
 compression_list=['jpeg','proxy','rgb','yuv','xv']
 
 #MODE LIST
-#TODO Need to be set to a list maybe
 mode_keys={'perf':"Performance",
     'eco':"Power Save",
     'option':"Optional"}
 
 #ICON FILES THEME
 icon_size=24
-default_icon_name='application-x-executable'
 
 #APP SETTINGS COLOR THEME
 configured_color='#00FF33'
 to_configure_color='#FFFF33'
 to_unconfigure_color='#FF0033'
 
-#BUMBLEBEE DEFAULT CONFIGURATION
-config_file_path='/etc/bumblebee/bumblebee.conf'
 #GET BUMBLEBEE CONFIGURATION VALUE
 def get_config_value(variable_name):
     """Function to get configuration value inside a shell script"""
@@ -61,21 +56,9 @@ def get_config_value(variable_name):
 default_compression= get_config_value('VGL_COMPRESS')
 vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
 
-#CATEGORIES CONFIGURATION
-
-####TODO There might be a way to get those key from a menu configuration file
-categorie_list=[['Game',	'applications-games'],
-        ['AudioVideo',	'applications-multimedia'],
-        ['Graphics',	'applications-graphics'],
-        ['Network',	'applications-internet'],
-        ['Office',	'applications-office'],
-        ['Settings',	'applications-system'],
-        ['System',	'applications-electronics'],
-        ['Utility',	'applications-utilities']]
-unmatch_categorie=['Miscellaneous','applications-other']
-uncategorized_categorie=['Uncategorized', 'application-x-executable']
-
+### INDICATOR SETTINGS ###
 #DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
+applications_setting_path='app/AppSettings.py'
 default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
                         ['Glxspheres', ['optirun', 'glxspheres']] ]
 
@@ -86,8 +69,7 @@ attention_comment="Bumblebee is in use"
 active_label="Bumblebee : OFF"
 active_comment="Bumblebee is not used anymore"
 
-#TODO : There might be a way to use string formatting to simplify the config definition
-#FIXME There must be a better way to store config
+#FIXME There must be a better way to store config using MODEL desktop file
 
 if __name__=="__main__" : 
     print "Config.py can't run as a standalone application"

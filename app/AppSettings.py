@@ -24,10 +24,12 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import os
-
+import fcntl
+import xdg.Menu
 #ORIGINAL MODULE
 import Config
-from DesktopFile import DesktopFile, DesktopFileSet
+import DesktopEntry
+
 
 #ICON CONFIGURATION
 class IconSet:
@@ -68,7 +70,6 @@ class Applications_settings():
 		
     def __init__(self):
         #FIXME Seems not to be clean or shorter enough
-        self.file_set=DesktopFileSet()
         self.icon_set=IconSet()
         # MAIN WINDOW
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -88,7 +89,9 @@ class Applications_settings():
         		
         # SELECT APPLICATION 
             # LIST
-        self.build_app_list()
+        self.app_list = gtk.TreeStore(str,str,str,gtk.gdk.Pixbuf,bool,bool,bool,str,bool,str,bool,str)
+        self.categorie_iter={}
+        self.buildMenu()
         
             # VIEW
         self.select_app_view = gtk.TreeView(self.app_list)
@@ -170,32 +173,37 @@ class Applications_settings():
     
     def action_button(self, action, label=None, stock=None):
         button= gtk.Button(label,stock)
-        button.set_size_request(width=100,height=-1)
+        #button.set_size_request(width=100,height=-1)
         button.connect("clicked",action)
         return button
-	
-    def build_app_list(self):
-        """Function to build the store with this columns :
+
+    def buildMenu(self, menu=xdg.Menu.parse(), category=None):
+		"""Function to build the store with this columns :
         *Application Name or Categorie Name, *File Name, *Application Categorie, *Application Icon Path, Is Not Category, Configured, (Selected by default), Mode,  32bits, Compression, Background display, Background color
         for categories : Categorie Name, None, None, Icon Path, False , Has child configured, False, None, 
         """
-        self.app_list = gtk.TreeStore(str,str,str,gtk.gdk.Pixbuf,bool,bool,bool,str,bool,str,bool,str)
-        self.categorie_iter={}
-        # CATEFORIE ROWS
-        for [categorie, icon_name] in Config.categorie_list + [Config.unmatch_categorie, Config.uncategorized_categorie]:
-            iter=self.app_list.append(None, [categorie,None,None] + [self.icon_set.get_pixbuf(icon_name)] + 3*[False] + 3*[None] + [False, Config.to_configure_color])
-            self.categorie_iter.update({categorie:iter})
-        # APPLICATIONS ROWS
-        for app_info in self.file_set.get_apps_info():
-            parent_iter=self.categorie_iter.get(app_info[2])
-            app_info[3]=self.icon_set.get_pixbuf(app_info[3])
-            if app_info[5] == True:
-                self.configured_file_exist=True
-                self.app_list.append(parent_iter, app_info + [True, Config.configured_color])
-                self.app_list[parent_iter][5]=True #Used to only show the categories with configured child
-                self.add_child_for_categorie(app_info[2])
-            else : self.app_list.append(parent_iter, app_info + [False, Config.to_configure_color])
-
+        for entry in menu.getEntries():
+            if isinstance(entry, xdg.Menu.Menu):
+                if category == None : 
+                    main_category = entry.getName()
+                    cat_info= [main_category, None, None, self.icon_set.get_pixbuf(entry.getIcon())] + 3*[False] + 3*[None]
+                    iter=self.app_list.append(None, cat_info + [False, Config.to_configure_color])
+                    self.categorie_iter.update({main_category:iter})
+                    self.buildMenu(entry, main_category)
+                else : self.buildMenu(entry, category)
+            elif isinstance(entry, xdg.Menu.MenuEntry):
+                app_info = DesktopEntry.GetDesktop(entry, category).getInfo()
+                app_info[3]=self.icon_set.get_pixbuf(app_info[3])
+                if app_info[2] : parent_iter=self.categorie_iter.get(app_info[2])
+                else : parent_iter=None
+                if app_info[5] == True:
+                    self.configured_file_exist=True
+                    self.app_list.append(parent_iter, app_info + [True, Config.configured_color])
+                    if app_info[2] : 
+                        self.add_child_for_categorie(app_info[2])
+                        self.app_list[parent_iter][5]=True #Used to only show the categories with configured child
+                else : self.app_list.append(parent_iter, app_info + [False, Config.to_configure_color])
+         
     def build_select_view(self):
         # APPLICATION OR CATEGORIE NAME COLUMN
         self.column = gtk.TreeViewColumn('Applications')
@@ -298,7 +306,8 @@ class Applications_settings():
         filter_iter = self.configured_apps.get_iter(path)
         iter = self.configured_apps.convert_iter_to_child_iter(filter_iter)
         self.app_list[iter][column_id] = new_text
-        DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        DesktopEntry.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        #DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
 
     def build_config_column(self, column_name, column_id):
         rendererToggle = gtk.CellRendererToggle()
@@ -312,21 +321,22 @@ class Applications_settings():
         model, column = user_data
         iter = model.convert_iter_to_child_iter(model.get_iter(row))
         self.app_list[iter][column] = not self.app_list[iter][column]
-        DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        DesktopEntry.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        #DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
 
     def apply_app_set (self,widget,data=None):
         for file_name, iter in self.to_configure_file.iteritems(): #The app is to configure
-            self.apply_app_change ( iter, file_name, [self.file_set.configure_file, self.add_child_for_categorie], 
+            self.apply_app_change ( iter, [DesktopEntry.SetDesktop(file_name).setEntry, self.add_child_for_categorie], 
                                     True, Config.mode_keys['option'], True, Config.configured_color)
         self.to_configure_file.clear()
         for file_name, iter in self.to_unconfigure_file.iteritems(): #The app is to unconfigure
-            self.apply_app_change ( iter, file_name, [self.file_set.unconfigure_file, self.remove_child_for_categorie],
+            self.apply_app_change ( iter, [DesktopEntry.SetDesktop(file_name).unsetEntry, self.remove_child_for_categorie],
                                     False, False, False, Config.to_configure_color)
         self.to_unconfigure_file.clear()
         self.config_app_view.expand_all()
-
-    def apply_app_change (self, iter, file_name, actions, configured, mode, display_bg, bg_color):
-        actions[0](file_name)
+     
+    def apply_app_change (self, iter, actions, configured, mode, display_bg, bg_color):
+        actions[0]()
         self.app_list.set(iter, 5, configured, 7, mode, 10, display_bg, 11, bg_color)
         actions[1](self.app_list.get_value(iter,2))
 
@@ -351,11 +361,15 @@ class Applications_settings():
     def main(self):
         gtk.main()
         return 0			
-
-if __name__=="__main__":
-    Appset = Applications_settings()	
-    Appset.main()
-
+if __name__ == "__main__":
 	
+    pid_file = 'bumblebee-app-settings.pid'
+    fp = open(pid_file, 'w')
+    app_settings = Applications_settings()
+    try:
+        fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)	
+		app_settings.main()
+    except IOError:
+        print "Another instance of bumblebee-app-settings is running {0}: Quit".format(str(os.getpid()))
+        quit()
 
- 

@@ -27,14 +27,17 @@ import gobject
 import appindicator
 import pynotify
 
+import xdg.Menu
+
 # SYSTEM MODULE
 import os
 import subprocess
 
 # ORIGINAL CLASS
+import app.DesktopEntry
 import app.Config
-from app.AppSettings import Applications_settings, IconSet
-from app.DesktopFile import DesktopFile, DesktopFileSet
+from app.AppSettings import IconSet
+import fcntl
 
 class BumblebeeIndicator():
 #TODO There must be a better way to get the icon than the URI
@@ -80,9 +83,9 @@ class BumblebeeIndicator():
         self.prefered_app_submenu.connect('activate', self.update_menu)
         self.menu.append(self.prefered_app_submenu)
         
-        item2 = gtk.MenuItem("Configure Apps")
-        item2.connect("activate", self.app_configure)
-        self.menu.append(item2)
+        app_settings = gtk.MenuItem("Configure Apps")
+        app_settings.connect("activate", self.app_configure)
+        self.menu.append(app_settings)
         
 #TODO An UI to configure Bumblebee would be nice
 	    
@@ -100,20 +103,66 @@ class BumblebeeIndicator():
         menu.append(separator)
 
 # FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
-    def update_menu(self, widget=None):	
+    def build_pref_menu(self):	
         pref_menu=gtk.Menu()
-        self.add_submenu_items( pref_menu, app.Config.default_preferred_apps )
+        for item_info in app.Config.default_preferred_apps:
+            self.add_submenu_item( pref_menu, item_info)
+        #self.add_submenu_item( pref_menu, app.Config.default_preferred_apps )
     	self.build_menu_separator( pref_menu )
-        self.add_submenu_items( pref_menu, DesktopFileSet().get_configured_from_check() )
+        self.getConfiguredEntries( pref_menu )
+        #self.add_submenu_item( pref_menu, DesktopFileSet().get_configured_from_check() )
         pref_menu.show()
-        self.prefered_app_submenu.set_submenu(pref_menu)
+        return pref_menu
+        
+    def update_menu(self, widget=None):
+        self.prefered_app_submenu.set_submenu(self.build_pref_menu())
+        self.prefered_app_submenu.show()
 
-    def add_submenu_items(self, submenu, items_list):
-        for Name, Exec_list in items_list : 
-            subitem = gtk.MenuItem(label=Name)
-            subitem.connect("activate", self.call_app, Exec_list)
-        	subitem.show()
-            submenu.append( subitem )
+    def add_submenu_item(self, submenu, item_info):
+        [Name, Exec] = item_info
+        subitem = gtk.MenuItem(label=Name)
+        subitem.connect("activate", self.call_app, ['optirun','-f'] + Exec)
+        subitem.show()
+        submenu.append( subitem )
+
+# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
+#TODO : Need refinement however it works	
+#	def update_configured_list (self, submenu, menu=xdg.Menu.parse()):
+#        for entry in menu.getEntries():
+#            if isinstance(entry, xdg.Menu.Menu):
+#                self.update_configured_list(submenu, entry)
+#            elif isinstance(entry, xdg.Menu.MenuEntry):
+#                desktopEntry=app.DesktopEntry.GetDesktop(entry)
+#                if desktopEntry.isConfigured():#
+#					print "This is a configured entry : {0}".format(entry)
+#					self.add_submenu_items( submenu, [ desktopEntry.getConfiguredEntry() ]) 
+					
+    def getConfiguredEntries(self, submenu, menu=xdg.Menu.parse()):
+        for entry in menu.getEntries():
+            if isinstance(entry, xdg.Menu.Menu):
+                self.getConfiguredEntries(submenu, entry)
+            elif isinstance(entry, xdg.Menu.MenuEntry):
+                desktopEntry=app.DesktopEntry.GetDesktop(entry)
+                if desktopEntry.isConfigured():
+                    self.add_submenu_item(submenu, desktopEntry.getConfiguredEntry())
+ 
+#    def update_menu(self, widget=None):	
+#        pref_menu=gtk.Menu()
+#        self.add_submenu_items( pref_menu, app.Config.default_preferred_apps )
+#        self.build_menu_separator( pref_menu )#
+#	    self.update_configured_list( pref_menu)
+#        self.getConfiguredEntries()
+#	    self.menu_updated+=1 
+#	    print "The menu is updated for the {0} time".format(self.menu_updated)
+#        pref_menu.show()
+#        self.prefered_app_submenu.set_submenu( pref_menu )
+
+#    def add_submenu_items(self, submenu, items_list):
+#        for Name, Exec_list in items_list :
+#            subitem = gtk.MenuItem(label=Name)
+#            subitem.connect("activate", self.call_app, Exec_list)
+#        	subitem.show()
+#            submenu.append( subitem )
 
 # FUNCTIONS TO CHECK FOR THE STATE OF THE INDICATOR
     def initial_state_checker(self):
@@ -153,10 +202,15 @@ class BumblebeeIndicator():
 # FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
 
     def app_configure(self,widget):
-        Applications_settings()
+        app_settings_exec =app.Config.applications_setting_path
+        print app_settings_exec
+		self.call_app(widget, [app_settings_exec])
+        #Applications_settings()
 
 # FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR
     def call_app(self, widget, app_exec):
+        print app_exec
+		print "Command launched through the bumblebee-ui : " + ' '.join(app_exec)
 #FIXME There is a problem when closing the launched app and when the indicator has been closed: the indicator is still running : What a daemon!!
         subprocess.Popen(app_exec,shell=False)
 
@@ -169,6 +223,13 @@ class BumblebeeIndicator():
         gtk.main()
 
 if __name__ == "__main__":
-    indicator = BumblebeeIndicator()
-    indicator.main()
+    pid_file = 'bumblebee-indicator.pid'
+    fp = open(pid_file, 'w')
+    try:
+        fcntl.lockf(fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        indicator = BumblebeeIndicator()
+        indicator.main()
+    except IOError:
+        print "Another instance of bumblebee-indicator is running : Quit"
+        quit()
 
