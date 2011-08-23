@@ -28,7 +28,7 @@ import fcntl
 import xdg.Menu
 #ORIGINAL MODULE
 import Config
-import DesktopEntry
+import DesktopFile
 
 
 #ICON CONFIGURATION
@@ -192,7 +192,7 @@ class Applications_settings():
                     self.buildMenu(entry, main_category)
                 else : self.buildMenu(entry, category)
             elif isinstance(entry, xdg.Menu.MenuEntry):
-                app_info = DesktopEntry.GetDesktop(entry, category).getInfo()
+                app_info = DesktopFile.GetDesktop(entry, category).getInfo()
                 app_info[3]=self.icon_set.get_pixbuf(app_info[3])
                 if app_info[2] : parent_iter=self.categorie_iter.get(app_info[2])
                 else : parent_iter=None
@@ -306,7 +306,7 @@ class Applications_settings():
         filter_iter = self.configured_apps.get_iter(path)
         iter = self.configured_apps.convert_iter_to_child_iter(filter_iter)
         self.app_list[iter][column_id] = new_text
-        DesktopEntry.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        DesktopFile.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
         #DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
 
     def build_config_column(self, column_name, column_id):
@@ -321,16 +321,16 @@ class Applications_settings():
         model, column = user_data
         iter = model.convert_iter_to_child_iter(model.get_iter(row))
         self.app_list[iter][column] = not self.app_list[iter][column]
-        DesktopEntry.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
+        DesktopFile.SetDesktop(self.app_list[iter][1]).setOptirun(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
         #DesktopFile(self.app_list[iter][1]).set_exec_config(self.app_list[iter][7],self.app_list[iter][8],self.app_list[iter][9])
 
     def apply_app_set (self,widget,data=None):
         for file_name, iter in self.to_configure_file.iteritems(): #The app is to configure
-            self.apply_app_change ( iter, [DesktopEntry.SetDesktop(file_name).setEntry, self.add_child_for_categorie], 
+            self.apply_app_change ( iter, [DesktopFile.SetDesktop(file_name).setEntry, self.add_child_for_categorie], 
                                     True, Config.mode_keys['option'], True, Config.configured_color)
         self.to_configure_file.clear()
         for file_name, iter in self.to_unconfigure_file.iteritems(): #The app is to unconfigure
-            self.apply_app_change ( iter, [DesktopEntry.SetDesktop(file_name).unsetEntry, self.remove_child_for_categorie],
+            self.apply_app_change ( iter, [DesktopFile.SetDesktop(file_name).unsetEntry, self.remove_child_for_categorie],
                                     False, False, False, Config.to_configure_color)
         self.to_unconfigure_file.clear()
         self.config_app_view.expand_all()
