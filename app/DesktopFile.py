@@ -38,9 +38,8 @@ modes=Config.mode_keys
 
 class GetDesktop():
     def __init__(self, entry, category=None):
-        self.desktop_file_id = list(entry.DesktopFileID.rsplit('.')) + [category]
-        if self.desktop_file_id[1] == 'desktop' :
-              self.desktopEntry= entry.DesktopEntry
+        self.desktop_file_id = list(entry.DesktopFileID.rsplit('.',1)) + [category]
+        self.desktopEntry= entry.DesktopEntry
 
     #DESKTOP ENTRY PARSE TO DETERMINE STATES
     def isLocal(self):
