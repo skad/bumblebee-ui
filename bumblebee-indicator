@@ -83,9 +83,10 @@ class BumblebeeIndicator():
         self.prefered_app_submenu.connect('activate', self.update_menu)
         self.menu.append(self.prefered_app_submenu)
         
-        app_settings = gtk.MenuItem("Configure Apps")
-        app_settings.connect("activate", self.app_configure)
-        self.menu.append(app_settings)
+        if app.Config.applications_setting_path : 
+            app_settings = gtk.MenuItem("Configure Apps")
+            app_settings.connect("activate", self.app_configure)
+            self.menu.append(app_settings)
         
 #TODO An UI to configure Bumblebee would be nice
 	    
@@ -107,8 +108,9 @@ class BumblebeeIndicator():
         pref_menu=gtk.Menu()
         for item_info in app.Config.default_preferred_apps:
             self.add_submenu_item( pref_menu, item_info)
-    	self.build_menu_separator( pref_menu )
-        self.get_configured_entries( pref_menu )
+    	if app.Config.applications_setting_path:
+            self.build_menu_separator( pref_menu )
+            self.get_configured_entries( pref_menu )
         pref_menu.show()
         self.prefered_app_submenu.set_submenu( pref_menu )
 
@@ -120,8 +122,8 @@ class BumblebeeIndicator():
         submenu.append( subitem )
 
 # FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE MENU FILE
-#FIXME : The menu is not updated		
-    def get_configured_entries(self, submenu, menu=xdg.Menu.parse()):
+#FIXME : The menu is not updated : problem of name space	
+    def get_configured_entries(self, submenu, menu=xdg.Menu.parse(app.Config.menu_file_path)):
         for entry in menu.getEntries():
             if isinstance(entry, xdg.Menu.Menu):
                 self.get_configured_entries(submenu, entry)
@@ -168,9 +170,7 @@ class BumblebeeIndicator():
 # FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
 
     def app_configure(self,widget):
-        app_settings_exec =app.Config.applications_setting_path
-        print app_settings_exec
-		self.call_app(widget, [app_settings_exec])
+		self.call_app(widget, [ app.Config.applications_setting_path ])
         #Applications_settings()
 
 # FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR

@@ -27,8 +27,10 @@ import gtk
 #BUMBLEBEE DEFAULT CONFIGURATION
 config_file_path='/etc/bumblebee/bumblebee.conf'
 optirun_installation_path='/usr/local/bin/optirun'
-
+#With KDE, you might need to change this value to the menu file you need
+menu_file_path=None
 icon_file_directory = '/usr/share/bumblebee-ui/icons/'
+
 #TEST IF OPTIRUN IS INSTALLED
 def check_install(name, path):
     try :
@@ -74,6 +76,8 @@ vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
 ### INDICATOR SETTINGS ###
 #DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
 applications_setting_path='app/AppSettings.py'
+if applications_setting_path : 
+     check_install('Bumblebee - Applications Settings', applications_setting_path)
 default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
                         ['Glxspheres', ['optirun', 'glxspheres']] ]
 

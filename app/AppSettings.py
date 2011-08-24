@@ -177,7 +177,7 @@ class Applications_settings():
         button.connect("clicked",action)
         return button
     
-    def buildMenu(self, menu=xdg.Menu.parse(), category=None):
+    def buildMenu(self, menu=xdg.Menu.parse(Config.menu_file_path), category=None):
         """Function to build the store with this columns  \
         *Application Name or Categorie Name, *File Name, *Application Categorie, \
         *Application Icon Path, Is Not Category, Configured, (Selected by default), \
