@@ -78,8 +78,8 @@ vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
 applications_setting_path='app/AppSettings.py'
 if applications_setting_path : 
      check_install('Bumblebee - Applications Settings', applications_setting_path)
-default_preferred_apps =[ ['Glxgears', ['optirun', 'glxgears']] , 
-                        ['Glxspheres', ['optirun', 'glxspheres']] ]
+default_preferred_apps =[ ['Glxgears', ['glxgears']] , 
+                        ['Glxspheres', ['glxspheres']] ]
 
 #NOTIFICATION MESSAGES :
 #TODO Revert when the possibility to turn off the card is back

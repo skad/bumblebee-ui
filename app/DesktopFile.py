@@ -112,7 +112,7 @@ class SetDesktop:
         self.entry= DesktopEntry()
         filepath = '/applications/' + fileid + '.desktop'
         self.local_path=data_home+filepath
-        #Use os.path.exists here because you already need it and DesktopEntry use it !
+        #FIXME : Use os.path.exists here because you already need it and DesktopEntry use it !
         try :
             self.entry.parse(data_home + filepath)
             self.local=True
@@ -134,8 +134,7 @@ class SetDesktop:
             self.setEntryComment()
             self.setShortcuts()
             print "File copied, tagged and configured for bumblebee : " + entry_name
-        print self.local_path
-        self.entry.write(self.local_path)
+        self.writeEntry()
 
     def setShortcuts(self):
         self.setShortcutKey()
@@ -145,14 +144,19 @@ class SetDesktop:
                               "optirun -f " + self.cmd, \
                               "BumblebeeDisable")
     
-    def setShortcutKey(self, key='X-Ayatana-Desktop-Shortcuts', value=['BumblebeeDisable','BumblebeeEnable'] ):
+    def setShortcutKey(self, key='X-Ayatana-Desktop-Shortcuts', values=['BumblebeeDisable','BumblebeeEnable'] ):
+        #TODO As to be reviewed and converted to a more generic function (especially  the try because DesktopEntry ever return something)
+        #TODO How to deal future multiple accepted values
+        [new_value, old_value]=values
         try : 
             shortcuts=self.entry.get(key)
-            if not (value[0] or value[1]) in shortcuts:
-                self.entry.set(key, value[0] +';' + shortcuts)
-            elif value[1] in shortcuts:
-                self.entry.set(key, shortcuts.replace(value[1],value[0]))
-        except : self.entry.set(key, value[0])
+            if not shortcuts:
+                self.entry.set(key, new_value)
+            elif not new_value and not old_value in shortcuts:
+                self.entry.set(key, new_value +';' + shortcuts)
+            elif old_value in shortcuts:
+                self.entry.set(key, shortcuts.replace(old_value,new_value))
+        except : self.entry.set(key, new_value)
 
     def setShortcutGroup(self, name, cmd, \
                                  shortcut="BumblebeeEnable"):
@@ -160,7 +164,7 @@ class SetDesktop:
         self.entry.addGroup(group)
         self.entry.set("Name", name, group)
         self.entry.set("Exec", cmd, group)
-        self.entry.set("TargetEnvironment", "Unity;GNOME;KDE;", group)
+        #self.entry.set("TargetEnvironment", "Unity;GNOME;KDE;", group)
         
     def getShortcutGroup(self,shortcut):
         #return '{0} {1}'.format(shortcut,group))
@@ -176,10 +180,12 @@ class SetDesktop:
         self.Exec=self.entry.get("Exec", group=self.getShortcutGroup('BumblebeeEnable'), list=True)
         option=list()
         if bits32 : option.append("-32")
-        if compression : option.append("-c " + compression) 
+        if compression and not compression=='default' \
+        and not compression==Config.default_compression:
+            option.append("-c " + compression) 
         if mode == modes['perf']:
             self.setOptirunKeys(['optirun','-f'] + option, \
-                                [], \
+                                ['optirun','-f'] + option, \
                                 ['BumblebeeEnable','BumblebeeDisable'])
         elif mode == modes['eco']:
             self.setOptirunKeys(['optirun'] + option, \
@@ -193,8 +199,8 @@ class SetDesktop:
 	
     def setOptirunKeys(self, Exec, ShortcutExec, ShortcutList):
         self.setExec(Exec)
-        self.setShortcutKey(self, value=ShortcutList)
-        self.setExec(ShortcutExec, self.getShortcutGroup(ShortcutList[0]))
+        self.setShortcutKey( values=ShortcutList)
+        self.setExec(ShortcutExec, self.getShortcutGroup('BumblebeeDisable'))
 
     def setExec(self, values, shortcut=None):
         self.entry.set("Exec", " ".join(values + self.Exec), group=shortcut)
@@ -234,11 +240,17 @@ class SetDesktop:
         try : 
             self.entry.validate()
         except ValidationError, e:
-            print e
-            print 'The file to write is not valid according to XDG specifications: %s' % self.entry
+            for error in e:
+                if not ('ValidationError' or 'Group name' or 'TargetEnvironment') in error:
+                    print 'The file to write is not valid according to XDG specifications: %s' % self.entry
+                    print e
+                else : pass
+                #print "Some setted values are not fullfilling the XDG specifications but works on Ubuntu Natty" 
+        except : 
+            print "Some exceptions occurs during the validation of this desktop file the ui created: %s" % self.entry
+            print "Please report this bug and join the desktop file created"
         finally : 
             self.entry.write(self.local_path)
-        #TODO The permission are not set properly : why ? it worked on the previous version
             os.chmod(self.local_path,0755)
         
 
