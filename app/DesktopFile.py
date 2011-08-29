@@ -163,7 +163,7 @@ class SetDesktop:
         self.entry.addGroup(group)
         self.entry.set("Name", name, group)
         self.entry.set("Exec", cmd, group)
-        #self.entry.set("TargetEnvironment", "Unity;GNOME;KDE;", group)
+        self.entry.set("TargetEnvironment", "Unity", group)
         
     def getShortcutGroup(self,shortcut):
         #return '{0} {1}'.format(shortcut,group))

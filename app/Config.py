@@ -67,7 +67,7 @@ to_unconfigure_color='#FF0033'
 def get_config_value(variable_name):
     """Function to get configuration value inside a shell script"""
     for line in open(config_file_path):
-        if variable_name in line:
+        if variable_name + '=' in line:
             return line.split('=',1)[1].replace("\n","")
 
 default_compression= get_config_value('VGL_COMPRESS')
