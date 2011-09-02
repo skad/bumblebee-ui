@@ -21,6 +21,8 @@
 
 import os
 import gtk
+import sys
+import gettext
 
 ### APPLICATIONS MENU CONFIG ###
 
@@ -36,7 +38,7 @@ def check_install(name, path):
     try :
         os.path.exists(path)
         os.access(path, os.X_OK)
-    except : 
+    except :
         print "Install check : {0} is lacking or don't have the good right at this adress {1}".format(name, path)
         quit()
 
@@ -44,7 +46,11 @@ check_install('Bumblebee configuration file', config_file_path)
 check_install('Optirun',optirun_installation_path)
 
 #ICONS FILE PATH
-icon_file_directory = '/usr/share/bumblebee-ui/icons/'
+#icon_file_directory = '/usr/share/bumblebee-ui/icons/'
+icon_file_directory = os.path.abspath(os.path.dirname(sys.argv[0])) + '/icons/'
+
+#LOCALISATION FILE PATH
+gettext.install('bumblebee-ui', os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '../i18n')))
 
 #ACCEPTED COMPRESSION
 compression_list=['jpeg','proxy','rgb','yuv','xv']
@@ -76,21 +82,21 @@ vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
 ### INDICATOR SETTINGS ###
 #DEFAULT APPLICATIONS IN THE PREFERRED APP MENU :
 applications_setting_path='app/AppSettings.py'
-if applications_setting_path : 
+if applications_setting_path :
      check_install('Bumblebee - Applications Settings', applications_setting_path)
-default_preferred_apps =[ ['Glxgears', ['glxgears']] , 
+default_preferred_apps =[ ['Glxgears', ['glxgears']] ,
                         ['Glxspheres', ['glxspheres']] ]
 
 #NOTIFICATION MESSAGES :
 #TODO Revert when the possibility to turn off the card is back
-attention_label="Bumblebee : ON"
-attention_comment="Bumblebee is in use"
-active_label="Bumblebee : OFF"
-active_comment="Bumblebee is not used anymore"
+attention_label=_(u"Bumblebee : ON")
+attention_comment=_(u"Bumblebee is in use")
+active_label=_(u"Bumblebee : OFF")
+active_comment=_(u"Bumblebee is not used anymore")
 
 #FIXME There must be a better way to store config using MODEL desktop file
 
-if __name__=="__main__" : 
+if __name__=="__main__" :
     print "Config.py can't run as a standalone application"
     quit()
 
