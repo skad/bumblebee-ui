@@ -244,7 +244,7 @@ class Applications_settings():
         #FILE NAME COLUMN
         self.select_app_view.append_column(self.column)
         rendererText2=gtk.CellRendererText()
-        column1 = gtk.TreeViewColumn('File Name',rendererText2, text=1)
+        column1 = gtk.TreeViewColumn(_(u'File Name'),rendererText2, text=1)
         column1.add_attribute(rendererText2, "cell-background-set",10)
         column1.add_attribute(rendererText2, "cell-background",11)
         self.select_app_view.append_column(column1)
