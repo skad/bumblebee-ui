@@ -1,7 +1,9 @@
 
 [Desktop Entry]
 Name=Bumblebee Applications Settings
-Comment=A configuration tool, to set applications to run with Bumblebee
+Name[fr]=Bumblebee - Configurer les applications
+Comment=A configuration tool, to set applications to be run with optirun
+Comment[fr]=Un outil de configuration des applications à lancer avec optirun
 Exec=bumblebee-app-settings
 Icon=bumblebee
 Type=Application
