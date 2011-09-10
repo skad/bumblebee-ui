@@ -136,26 +136,19 @@ class SetDesktop:
         self.writeEntry()
 
     def setShortcuts(self):
-        self.setShortcutKey()
+        self.setShortcutKey('set')
         self.cmd=self.entry.get(key="Exec")
         self.setShortcutGroup('Launch without Bumblebee', self.cmd)
         self.setShortcutGroup('Launch with Bumblebee', \
                               "optirun -f " + self.cmd, \
                               "BumblebeeDisable")
     
-    def setShortcutKey(self, key='X-Ayatana-Desktop-Shortcuts', values=['BumblebeeDisable','BumblebeeEnable'] ):
-        #TODO As to be reviewed and converted to a more generic function (especially  the try because DesktopEntry ever return something)
-        #TODO How to deal future multiple accepted values
-        [new_value, old_value]=values
-        try : 
-            shortcuts=self.entry.get(key)
-            if not shortcuts:
-                self.entry.set(key, new_value)
-            elif not new_value and not old_value in shortcuts:
-                self.entry.set(key, new_value +';' + shortcuts)
-            elif old_value in shortcuts:
-                self.entry.set(key, shortcuts.replace(old_value,new_value))
-        except : self.entry.set(key, new_value)
+    def setShortcutKey(self, operation, key='X-Ayatana-Desktop-Shortcuts', values=['BumblebeeDisable','BumblebeeEnable'] ):
+        shortcuts=self.entry.get(key, list=True)
+        clean_shortcuts=[ value for value in shortcuts if not value in values ]
+        if operation=='set': clean_shortcuts.append(values[0])
+        if len(clean_shortcuts)==0 and operation=='unset': self.entry.removeKey(key)
+        else : self.entry.set(key, ';'.join(clean_shortcuts) + ';')    
 
     def setShortcutGroup(self, name, cmd, \
                                  shortcut="BumblebeeEnable"):
@@ -176,7 +169,6 @@ class SetDesktop:
         self.entry.set("Comment", tagged_value ,locale=False)
         
     def setOptirun(self, mode, bits32, compression):
-        self.Exec=self.entry.get("Exec", group=self.getShortcutGroup('BumblebeeEnable'), list=True)
         option=list()
         if bits32 : option.append("-32")
         if compression and not compression=='default' \
@@ -198,11 +190,15 @@ class SetDesktop:
 	
     def setOptirunKeys(self, Exec, ShortcutExec, ShortcutList):
         self.setExec(Exec)
-        self.setShortcutKey( values=ShortcutList)
+        self.setShortcutKey('set', values=ShortcutList )
         self.setExec(ShortcutExec, self.getShortcutGroup('BumblebeeDisable'))
 
+    def getCleanExec(self):
+        #TODO This way of getting the exec without any optirun argument must be changed
+        return self.entry.get("Exec", group=self.getShortcutGroup('BumblebeeEnable'), list=True)
+
     def setExec(self, values, shortcut=None):
-        self.entry.set("Exec", " ".join(values + self.Exec), group=shortcut)
+        self.entry.set("Exec", " ".join(values + self.getCleanExec()), group=shortcut)
 
     def isCreated(self, tag="File created by bumblebee-ui"):
         try :
@@ -215,25 +211,15 @@ class SetDesktop:
             os.remove(self.local_path)
             print "File created by bumblebee-ui removed : " + entry_name
         else : 
+            self.setExec([])
             self.unsetShortcuts()
             self.writeEntry()
             print "Entry modified by bumblebee-ui unconfigured : " + entry_name
 
     def unsetShortcuts (self, shortcuts=['BumblebeeDisable','BumblebeeEnable']):
-        self.unsetShortcutKey()
-        for shortcut in shortcuts : self.unsetShortcutGroup(shortcut)
-
-    def unsetShortcutGroup(self, shortcut):
-        self.entry.removeGroup(self.getShortcutGroup(shortcut))
-
-    def unsetShortcutKey(self, key='X-Ayatana-Desktop-Shortcuts', value=['BumblebeeDisable','BumblebeeEnable'] ):
-        shortcuts=self.entry.get(key, list=True)
-        #TODO Change by a list comprehension
-        for matching_value in value :
-            if matching_value in shortcuts:
-                shortcuts.remove(matching_value)
-        if len(shortcuts)==0: self.entry.removeKey(key)
-        else : self.entry.set(key, ';'.join(shortcuts))
+        self.setShortcutKey('unset')
+        for shortcut in shortcuts : 
+            self.entry.removeGroup(self.getShortcutGroup(shortcut))
 
     def writeEntry(self):     
         try : 
