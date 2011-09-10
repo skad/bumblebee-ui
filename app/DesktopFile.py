@@ -111,17 +111,17 @@ class SetDesktop:
         self.entry= DesktopEntry()
         filepath = '/applications/' + fileid + '.desktop'
         self.local_path=data_home+filepath
-        #FIXME : Use os.path.exists here because you already need it and DesktopEntry use it !
-        try :
-            self.entry.parse(data_home + filepath)
+        #TODO Find a better way : but that is still standalone
+        if os.path.exists(self.local_path):
             self.local=True
-        except xdg.Exceptions.ParsingError:  
-            for data_dir in reversed(data_dirs):
-                try : 
-                    self.entry.parse(data_dir + filepath)
-                except xdg.Exceptions.ParsingError:
-                    continue 
+            self.entry.parse(self.local_path)
+        else:
             self.local=False
+            for data_dir in reversed(data_dirs):
+                if os.path.exists(data_dir + filepath):
+                    self.entry.parse(data_dir + filepath)
+                    break
+
 
     #DESKTOP ENTRY BASE CONFIGURATION
     def setEntry(self):
