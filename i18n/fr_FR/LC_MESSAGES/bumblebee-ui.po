@@ -43,11 +43,7 @@ msgstr "Sélectionner les applications"
 
 #: app/AppSettings.py
 msgid "Choose the application you want to configure to use with the discrete graphic card."
-msgstr "Choisissez l'application que vous voulez utiliser avec la carte graphique discrète."
-
-#: app/AppSettings.py
-msgid "Apply Now"
-msgstr "Appliquer maintenant"
+msgstr "Choisissez les applications que vous voulez utiliser avec la carte graphique dédiée."
 
 #: app/AppSettings.py
 msgid "Configure applications"
@@ -55,7 +51,11 @@ msgstr "Configurer les applications"
 
 #: app/AppSettings.py
 msgid "Choose the configuration for each application. Depending on mode the discrete card will be launched: always (Performance), only when plugged (Power Save) or with launcher shortcuts (Option)"
-msgstr "Choisissez la configuration pour chaque application.\nEn fonction du mode choisie, la carte discrète sera lancée:\n-toujours (Performance),\n-seulement sur secteur (Power Save) ou\n-à l'aide de raccourcis accessibles dans le menu contextuel (Option)"
+msgstr "Choisissez la configuration pour chaque application.\nEn fonction du mode choisie, la carte discrète sera lancée:\n- toujours (Performance),\n- seulement sur secteur (Power Save) ou\n- à l'aide de raccourcis accessibles dans le menu contextuel (Option)"
+
+#: app/AppSettings.py
+msgid "Bumblebee - Help"
+msgstr "Bumblebee - Aide"
 
 #: app/AppSettings.py
 msgid "Applications"

@@ -68,7 +68,7 @@ class Applications_settings():
     def delete_event(self,widget,event,data=None):
         return False
 
-    def destroy(self,widget):
+    def destroy(self,widget,args):
         if __name__=="__main__": gtk.main_quit()
         else : self.window.destroy()
 
@@ -81,7 +81,7 @@ class Applications_settings():
         self.window.connect("destroy", self.destroy)
         self.window.set_title(_(u"Bumblebee - Applications Settings"))
         self.window.set_border_width(0)
-        self.window.set_size_request(600,600)
+        self.window.set_size_request(600,500)
         # MAIN WINDOW ICON : monitor and launcher
         self.window.set_icon(self.icon_set.get_pixbuf('bumblebee', 48))
 
@@ -117,9 +117,8 @@ class Applications_settings():
             tab_title = _(u"Select applications"),
             instruction_text = _(u"Choose the application you want to configure to use with the discrete graphic card."),
             view = self.select_app_view ,
-            #button_list = [self.action_button(stock=gtk.STOCK_APPLY, action=self.apply_app_set),self.action_button(label=_(u"Apply Now"),action=self.apply_app_set)] )
             button_list = [self.action_button(stock=gtk.STOCK_APPLY, action=self.apply_app_set)] )
-#TODO Create an apply now button which relaunch unity with unity --replace or use dynamic desktop configuration (See Ubuntu desktop specification)
+            #TODO Create an apply now button which relaunch unity with unity --replace or use dynamic desktop configuration (See Ubuntu desktop specification)
         # CONFIGURE APPLICATION
             # LIST
         self.configured_apps = self.app_list.filter_new(root=None)
@@ -138,48 +137,50 @@ class Applications_settings():
             view=self.config_app_view )
 
 #FIXME : Set the focus on configure page doesn't work
-        if self.configured_file_exist==True: self.notebook.set_current_page(self.configure_page)
+        if self.configured_file_exist==True: self.notebook.set_current_page(1)
         else: self.select_app_view.expand_all()
 
         #SHOW ALL
         self.window.show_all()
 
     def build_notebook_page(self , tab_title, instruction_text , view , button_list=[]):
-        # INSTRUCTION FRAME
-        instruction_frame = self.return_instruction_frame(instruction_text)
         # SCROLL FRAME
         scrolled_window=gtk.ScrolledWindow()
         scrolled_window.add(view)
         # ACTION AREA
-        hbox=gtk.HBox(homogeneous=False, spacing=10)
+        hbox=gtk.HButtonBox()
+        hbox.set_layout(gtk.BUTTONBOX_START)
+        hbox.set_spacing(10)
         # SPECIFIC BUTTON
-        for button in button_list : hbox.pack_start(button, False, False, 10)
-        # CLOSE BUTTON
-        hbox.pack_end(self.action_button(stock=gtk.STOCK_CLOSE, action=self.destroy), False, False, 10)
+        for button in button_list : hbox.add(button)
+        # COMMON BUTTON
+        help_button=self.action_button(stock=gtk.STOCK_HELP, action=self.displayHelp, args=instruction_text)
+        close_button=self.action_button(stock=gtk.STOCK_CLOSE, action=self.destroy)
+        for button in [help_button,close_button]:
+            hbox.add(button)
+            hbox.set_child_secondary(button, True)
         # CONTAINER
         vbox= gtk.VBox(homogeneous=False)
-        vbox.pack_start(instruction_frame, False, False, 0)
         vbox.pack_start(scrolled_window, True, True, 10)
         vbox.pack_end(hbox, False, False, 10)
+        box=gtk.HBox(homogeneous=True)
+        box.pack_start(vbox, True, True, 10)
         # NOTEBOOK PAGE
         notebook_label= gtk.Label(tab_title)
-        return self.notebook.append_page(vbox, notebook_label)
+        return self.notebook.append_page(box, notebook_label)
 
-    def return_instruction_frame(self,text):
-        """Return an instruction frame with the text given"""
-        instruction_frame = gtk.Frame()
-        instruction = gtk.Label(text)
-        #instruction.set_justify(gtk.JUSTIFY_LEFT)
-        instruction_frame.set_border_width(10)
-#FIXME : There is a problem with the instruction frame text rendering : use size_allocate to dynamicaly set the size of label
-        instruction.set_line_wrap(True)
-        instruction_frame.add(instruction)
-        return instruction_frame
+    def displayHelp(self,widget,args):
+        dialog = gtk.MessageDialog(self.window,
+                                    gtk.DIALOG_DESTROY_WITH_PARENT,
+                                    gtk.MESSAGE_QUESTION,
+                                    gtk.BUTTONS_CLOSE)
+        dialog.set_properties(text=_("Bumblebee - Help"), secondary_text=args)
+        dialog.run()
+        dialog.destroy()
 
-    def action_button(self, action, label=None, stock=None):
+    def action_button(self, action, args=None, label=None, stock=None):
         button= gtk.Button(label,stock)
-        #button.set_size_request(width=100,height=-1)
-        button.connect("clicked",action)
+        button.connect("clicked",action, args)
         return button
 
     def buildMenu(self, menu=xdg.Menu.parse(Config.menu_file_path), category=None):

@@ -46,15 +46,15 @@ msgid "Choose the application you want to configure to use with the discrete gra
 msgstr ""
 
 #: app/AppSettings.py
-msgid "Apply Now"
-msgstr ""
-
-#: app/AppSettings.py
 msgid "Configure applications"
 msgstr ""
 
 #: app/AppSettings.py
 msgid "Choose the configuration for each application. Depending on mode the discrete card will be launched: always (Performance), only when plugged (Power Save) or with launcher shortcuts (Option)"
+msgstr ""
+
+#: app/AppSettings.py
+msgid "Bumblebee - Help"
 msgstr ""
 
 #: app/AppSettings.py
