@@ -29,7 +29,7 @@ user_desktop_file_directory = user_home_directory + user_relative_desktop_file_d
 global_desktop_file_directory = '/usr/share/applications/'
 
 #ICONS FILE PATH
-icon_file_directory = '/usr/share/bumblebee-ui/icons/'
+icon_file_directory = '/usr/share/icons/hicolor/48x48/apps/'
 
 #ACCEPTED COMPRESSION
 compression_list=['jpeg','proxy','rgb','yuv','xv']
@@ -59,7 +59,7 @@ def get_config_value(variable_name):
             return line.split('=',1)[1].replace("\n","")
 
 default_compression= get_config_value('VGL_COMPRESS')
-vgl_display= get_config_value('VGL_DISPLAY').replace(":","")
+vgl_display= get_config_value('VirtualDisplay').replace(":","")
 
 #CATEGORIES CONFIGURATION
 
