@@ -32,14 +32,15 @@ import os
 import subprocess
 
 # ORIGINAL CLASS
-import app.Config
-from app.AppSettings import Applications_settings, IconSet
-from app.DesktopFile import DesktopFile, DesktopFileSet
+import Config
+from AppSettings import Applications_settings, IconSet
+from DesktopFile import DesktopFile, DesktopFileSet
 
 class BumblebeeIndicator():
 #TODO There must be a better way to get the icon than the URI
 #FIXME The notification must be replaced when still visible
     def notify_state(self, title, msg, icon_name):
+        pynotify.init("Bumblebee notification")
         self.notification= pynotify.Notification(title, msg, IconSet().get_uri(icon_name,48))
         self.notification.set_urgency(pynotify.URGENCY_CRITICAL)
         #FIXME The notification is to slow and this doesn't work
@@ -50,13 +51,12 @@ class BumblebeeIndicator():
     def __init__(self):
         self.ind = appindicator.Indicator ("bumblebee-indicator", "bumblebee-indicator", appindicator.CATEGORY_HARDWARE)
         self.ind.set_status (appindicator.STATUS_ACTIVE)
-        self.ind.set_icon_theme_path(app.Config.icon_file_directory)
 #TODO The icons style and accesibility must be enhanced : see icons/test directory
-        self.ind.set_icon(app.Config.icon_file_directory + "bumblebee-indicator.svg",'Bumblebee is unactive')
-        self.ind.set_attention_icon (app.Config.icon_file_directory + "bumblebee-indicator-active.svg",'Bumblebee is active')
+        self.ind.set_icon("bumblebee-indicator.svg",'Bumblebee is unactive')
+        self.ind.set_attention_icon ("bumblebee-indicator-active.svg",'Bumblebee is active')
                 
         self.card_state=False
-        self.lock_file = "/tmp/.X%s-lock" % app.Config.vgl_display
+        self.lock_file = "/tmp/.X%s-lock" % Config.vgl_display
         
         self.build_menu()
         
@@ -102,7 +102,7 @@ class BumblebeeIndicator():
 # FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
     def update_menu(self, widget=None):	
         pref_menu=gtk.Menu()
-        self.add_submenu_items( pref_menu, app.Config.default_preferred_apps )
+        self.add_submenu_items( pref_menu, Config.default_preferred_apps )
     	self.build_menu_separator( pref_menu )
         self.add_submenu_items( pref_menu, DesktopFileSet().get_configured_from_check() )
         pref_menu.show()
@@ -133,14 +133,14 @@ class BumblebeeIndicator():
 # FUNCTIONS TO SET THE STATE OF THE INDICATOR AND LAUNCH NOTIFICATION
     def set_attention_state(self, notify=True):
         self.set_status(True, appindicator.STATUS_ATTENTION, 
-                        app.Config.attention_label, 
-                        app.Config.attention_comment, 
+                        Config.attention_label, 
+                        Config.attention_comment, 
                         "bumblebee-indicator-active", notify)
 
     def set_active_state(self, notify=True):
         self.set_status(False, appindicator.STATUS_ACTIVE, 
-                        app.Config.active_label, 
-                        app.Config.active_comment,  
+                        Config.active_label, 
+                        Config.active_comment,  
                         "bumblebee-indicator", notify)
     
     def set_status(self, status, indicator, label, comment, icon, notify):

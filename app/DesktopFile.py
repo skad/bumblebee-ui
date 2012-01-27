@@ -203,7 +203,7 @@ class DesktopFile:
         Exec = self.config.get('Desktop Entry', 'Exec')
         #TODO Check if this is really needed
         #self.config.set('Desktop Entry','OnlyShowIn','GNOME;Unity;")
-        self.add_shortcut_section('BumblebeeDisable Shortcut Group', 'Launch with Bumblebee', 'optirun -f ' + Exec) #Default setting is optional and forced
+        self.add_shortcut_section('BumblebeeDisable Shortcut Group', 'Launch with Bumblebee', 'optirun ' + Exec) #Default setting is optional and forced
         self.add_shortcut_section('BumblebeeEnable Shortcut Group', 'Launch without Bumblebee', Exec)
         self.write_config_to_file(Config.user_desktop_file_directory + self.file_name_with_extension)
         if self.local == False: os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
@@ -260,9 +260,9 @@ class DesktopFile:
         if bits32==True: option+='-32 '
         if not (compression == "default" or compression == Config.default_compression) : option+='-c '+ compression + ' '
         clean_exec= self.config.get('BumblebeeEnable Shortcut Group','Exec')
-        self.config.set('BumblebeeDisable Shortcut Group','Exec','optirun -f ' + option + clean_exec)
+        self.config.set('BumblebeeDisable Shortcut Group','Exec','optirun ' + option + clean_exec)
         if mode == Config.mode_keys['perf']: 
-            self.set_exec_config_default('optirun -f ' + option + clean_exec, 'BumblebeeDisable', 'BumblebeeEnable')
+            self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeDisable', 'BumblebeeEnable')
         elif mode == Config.mode_keys['eco']: 
             self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeEnable', 'BumblebeeDisable')
         else: 
