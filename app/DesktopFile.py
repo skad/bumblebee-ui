@@ -32,6 +32,15 @@ from xdg.DesktopEntry import *
 
 import Config
 
+#Get Configurations
+import ConfigParser
+uiConfig=ConfigParser.ConfigParser()
+uiConfig.read('bumblebee-ui.conf')
+
+bumblebeeConfig=ConfigParser.ConfigParser()
+bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))
+default_compression= bumblebeeConfig.get('optirun','VGLTransport')
+
 data_dirs=xdg.BaseDirectory.xdg_data_dirs
 data_home=xdg.BaseDirectory.xdg_data_home
 modes=Config.mode_keys
@@ -88,7 +97,7 @@ class GetDesktop():
 			
     def setTrue( arg, next_arg=None): return {arg:True}
     
-    def getCompression( arg, next_arg=None, default=Config.default_compression): 
+    def getCompression( arg, next_arg=None, default=default_compression): 
         if (next_arg in Config.compression_list and next_arg != default): return {arg:next_arg}
     
     def getExecConfig(self, Exec, i=-1, 
@@ -172,7 +181,7 @@ class SetDesktop:
         option=list()
         if failsafe : option.append("--failsafe")
         if compression and not compression=='default' \
-        and not compression==Config.default_compression:
+        and not compression==default_compression:
             option.append("-c " + compression) 
         if mode == modes['perf']:
             self.setOptirunKeys(['optirun','-f'] + option, \

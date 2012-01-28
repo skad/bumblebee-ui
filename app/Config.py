@@ -23,9 +23,6 @@ import os
 import gtk
 import sys
 import gettext
-import ConfigParser
-
-### APPLICATIONS MENU CONFIG ###
 
 
 #BUMBLEBEE DEFAULT CONFIGURATION
