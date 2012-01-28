@@ -70,7 +70,7 @@ class GetDesktop():
 
     def getConfiguredInfo(self):
         """Function to get configuration from a configured desktop entry : 
-        Is Application, Configured, (Selected by default : unselected), Mode, 32bits, Compression
+        Is Application, Configured, (Selected by default : unselected), Mode, Failsafe, Compression
         """
         entry_common = 3*[True]
         entry_exec= self.desktopEntry.getExec()
@@ -92,18 +92,18 @@ class GetDesktop():
         if (next_arg in Config.compression_list and next_arg != default): return {arg:next_arg}
     
     def getExecConfig(self, Exec, i=-1, 
-        case={'-32':setTrue, '-f':setTrue, '-c':getCompression},
+        case={'--failsafe':setTrue, '-f':setTrue, '-c':getCompression},
         skip=['optirun', 'ecoptirun', '-d', ':0', ':1', ':2'] + Config.compression_list):
         """Function to search for configuration inside optirun arguments in the desktop file object : 
-        Force_eco, 32bits, Compression"""
+        Force_eco, Failsafe, Compression"""
         arg_list=Exec.split(' ')	
-        exec_config={'-f':False, '-32':False, '-c':'default'}
+        exec_config={'-f':False, '--failsafe':False, '-c':'default'}
         for arg in arg_list:
             i = i+1
             if arg in case: exec_config.update(case.get(arg)(arg,next_arg=arg_list[i+1]))
             elif arg in skip: continue
             else: break
-        return [exec_config['-f']] + [exec_config['-32']] + [exec_config['-c']]
+        return [exec_config['-f']] + [exec_config['--failsafe']] + [exec_config['-c']]
 
 
 class SetDesktop:
@@ -168,9 +168,9 @@ class SetDesktop:
         else : tagged_value=tag
         self.entry.set("Comment", tagged_value ,locale=False)
         
-    def setOptirun(self, mode, bits32, compression):
+    def setOptirun(self, mode, failsafe, compression):
         option=list()
-        if bits32 : option.append("-32")
+        if failsafe : option.append("--failsafe")
         if compression and not compression=='default' \
         and not compression==Config.default_compression:
             option.append("-c " + compression) 
@@ -265,10 +265,10 @@ class SetDesktop:
 
 # FUNCTIONS TO CONFIGURE THE EXECUTION OF THE APPLICATION		
 	
-    def set_exec_config(self, mode, bits32, compression):
-        """Function to set the option for optirun : default, 32 bits, on battery, compression"""
+    def set_exec_config(self, mode, failsafe, compression):
+        """Function to set the option for optirun : default, failsafe, on battery, compression"""
         option=''
-        if bits32==True: option+='-32 '
+        if failsafe==True: option+='--failsafe '
         if not (compression == "default" or compression == Config.default_compression) : option+='-c '+ compression + ' '
         clean_exec= self.config.get('BumblebeeEnable Shortcut Group','Exec')
         self.config.set('BumblebeeDisable Shortcut Group','Exec','optirun ' + option + clean_exec)

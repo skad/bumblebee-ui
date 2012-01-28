@@ -70,8 +70,8 @@ msgid "Mode"
 msgstr "Mode"
 
 #: app/AppSettings.py
-msgid "32bits Driver"
-msgstr "Pilote 32bits"
+msgid "Failsafe"
+msgstr "Sans échec"
 
 #: app/AppSettings.py
 msgid "Compression"

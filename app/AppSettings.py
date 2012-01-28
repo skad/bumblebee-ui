@@ -187,7 +187,7 @@ class Applications_settings():
         """Function to build the store with this columns  \
         *Application Name or Categorie Name, *File Name, *Application Categorie, \
         *Application Icon Path, Is Not Category, Configured, (Selected by default), \
-        Mode,  32bits, Compression, Background display, Background color \
+        Mode,  Failsafe, Compression, Background display, Background color \
         for categories : Categorie Name, None, None, Icon Path, False , Has child configured, False, None, \
         """
         for entry in menu.getEntries():
@@ -285,7 +285,7 @@ class Applications_settings():
         # MODE, DRIVER AND COMPRESSION COLUMN
         self.build_combo_column(_(u"Mode"), 7, Config.mode_keys.values())
 
-        self.build_config_column (_(u"32bits Driver"), 8)
+        self.build_config_column (_(u"Failsafe"), 8)
 
         self.build_combo_column(_(u"Compression"), 9, ["default"] + Config.compression_list)
 

@@ -23,6 +23,7 @@ import os
 import gtk
 import sys
 import gettext
+import ConfigParser
 
 ### APPLICATIONS MENU CONFIG ###
 
@@ -33,7 +34,9 @@ optirun_installation_path='/usr/local/bin/optirun'
 #With KDE, you might need to change this value to the menu file you need
 menu_file_path=None
 #ICONS FILE PATH
-icon_file_directory = '/usr/share/icons/hicolor/48x48/apps/'
+#icon_file_directory = '/usr/share/icons/hicolor/48x48/apps/'
+#TODO : Change this value (this is only meant for developement)
+icon_file_directory = os.path.abspath(os.path.dirname(sys.argv[0])) + '/icons/'
 
 #TEST IF OPTIRUN IS INSTALLED
 def check_install(name, path):
@@ -49,11 +52,11 @@ check_install('Optirun',optirun_installation_path)
 
 #ICONS FILE PATH
 #icon_file_directory = '/usr/share/bumblebee-ui/icons/'
-icon_file_directory = os.path.abspath(os.path.dirname(sys.argv[0])) + '/icons/'
+
 
 #LOCALISATION FILE PATH
 gettext.install('bumblebee-ui', os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '../i18n')))
-
+#gettext.install('bumblebee-ui', '../i18n')
 #ACCEPTED COMPRESSION
 compression_list=['jpeg','proxy','rgb','yuv','xv']
 
@@ -78,7 +81,7 @@ def get_config_value(variable_name):
         if variable_name + '=' in line:
             return line.split('=',1)[1].replace("\n","")
 
-default_compression= get_config_value('VGL_COMPRESS')
+default_compression= get_config_value('VGLTransport')
 vgl_display= get_config_value('VirtualDisplay').replace(":","")
 
 ### INDICATOR SETTINGS ###
