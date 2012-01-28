@@ -36,7 +36,10 @@ import sys
 
 # ORIGINAL CLASS
 import app.DesktopFile
+
+#Parse configuration
 import app.Config
+
 from app.AppSettings import IconSet
 import fcntl
 

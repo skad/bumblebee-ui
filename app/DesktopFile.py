@@ -189,96 +189,96 @@ class SetDesktop:
         self.writeEntry()
 
 # FUNCTION TO GET THE LIST OF ARGUMENT FOR SUBPROCESS
-    def get_exec_list(self):
-        return re.split(' ',self.config.get('BumblebeeDisable Shortcut Group','Exec'))
+#    def get_exec_list(self):
+#        return re.split(' ',self.config.get('BumblebeeDisable Shortcut Group','Exec'))
 		
 # FUNCTIONS TO CONFIGURE THE FILES WITH SHORTCUTS
-    def write_config_to_file(self,output_file_name):
-        with open(output_file_name,'w') as file_object:
-            self.config.write(file_object)
+#    def write_config_to_file(self,output_file_name):
+#        with open(output_file_name,'w') as file_object:
+#            self.config.write(file_object)
 	
-    def configure_file(self):
-        """Function to configure the local or global desktop file"""
-        if self.local == False:
-            try : self.config.set('Desktop Entry', 'Comment', self.config.get('Desktop Entry','Comment') + ' (created for Bumblebee)')
-            except ConfigParser.NoOptionError: 
-                self.config.set('Desktop Entry', 'Comment', 'This file has been created for Bumblebee.')		
-            self.add_shortcuts()
-            os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
-        elif self.local == True:
-            self.add_shortcuts()
+#    def configure_file(self):
+#        """Function to configure the local or global desktop file"""
+#        if self.local == False:
+#            try : self.config.set('Desktop Entry', 'Comment', self.config.get('Desktop Entry','Comment') + ' (created for Bumblebee)')
+#            except ConfigParser.NoOptionError: 
+#                self.config.set('Desktop Entry', 'Comment', 'This file has been created for Bumblebee.')		
+#            self.add_shortcuts()
+#            os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
+#        elif self.local == True:
+#            self.add_shortcuts()
 		
-    def add_shortcuts(self):
-        """Function to add shorcut section for bumblebee and add a shortcut to the desktop file object"""
-        self.prepend_option('Desktop Entry', 'X-Ayatana-Desktop-Shortcuts', 'BumblebeeDisable')
-        Exec = self.config.get('Desktop Entry', 'Exec')
-        #TODO Check if this is really needed
-        #self.config.set('Desktop Entry','OnlyShowIn','GNOME;Unity;")
-        self.add_shortcut_section('BumblebeeDisable Shortcut Group', 'Launch with Bumblebee', 'optirun ' + Exec) #Default setting is optional and forced
-        self.add_shortcut_section('BumblebeeEnable Shortcut Group', 'Launch without Bumblebee', Exec)
-        self.write_config_to_file(Config.user_desktop_file_directory + self.file_name_with_extension)
-        if self.local == False: os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
+#    def add_shortcuts(self):
+#        """Function to add shorcut section for bumblebee and add a shortcut to the desktop file object"""
+#        self.prepend_option('Desktop Entry', 'X-Ayatana-Desktop-Shortcuts', 'BumblebeeDisable')
+#        Exec = self.config.get('Desktop Entry', 'Exec')
+#        #TODO Check if this is really needed
+#        #self.config.set('Desktop Entry','OnlyShowIn','GNOME;Unity;")
+#        self.add_shortcut_section('BumblebeeDisable Shortcut Group', 'Launch with Bumblebee', 'optirun ' + Exec) #Default setting is optional and forced
+#        self.add_shortcut_section('BumblebeeEnable Shortcut Group', 'Launch without Bumblebee', Exec)
+#        self.write_config_to_file(Config.user_desktop_file_directory + self.file_name_with_extension)
+#        if self.local == False: os.chmod(Config.user_desktop_file_directory + self.file_name_with_extension,0755)
 
 	
-    def add_shortcut_section(self,Section_title,Section_name,Section_exec):
-        self.config.add_section(Section_title)
-        self.config.set(Section_title, 'Name', Section_name)
-        self.config.set(Section_title, 'Exec', Section_exec)
-        self.config.set(Section_title, 'TargetEnvironment', 'Unity')
+#    def add_shortcut_section(self,Section_title,Section_name,Section_exec):
+#        self.config.add_section(Section_title)
+#        self.config.set(Section_title, 'Name', Section_name)
+#        self.config.set(Section_title, 'Exec', Section_exec)
+#        self.config.set(Section_title, 'TargetEnvironment', 'Unity')
 
-    def prepend_option(self,section,option,value):
-        """Function to prepend a value to an option inside section of a desktop file object"""
-        if self.config.has_option(section,option) == True: self.config.set(section,option, value + ";" + self.config.get(section,option))
-        else : self.config.set(section,option,value)
+#    def prepend_option(self,section,option,value):
+#        """Function to prepend a value to an option inside section of a desktop file object"""
+#        if self.config.has_option(section,option) == True: self.config.set(section,option, value + ";" + self.config.get(section,option))
+#        else : self.config.set(section,option,value)
 	
 # FUNCTIONS TO UNCONFIGURE FILES OR REMOVE THEM
-    def is_created(self):
-        """Function to check if the file is tagged as created for Bumblebee or not"""
-        try:  #FIXME Bumblebee Enable must not be set in comment but somewhere else 
-            if 'created for Bumblebee' in self.config.get('Desktop Entry','Comment'): return True
-            else : return False 
-        except ConfigParser.NoOptionError: return False 
+#    def is_created(self):
+#        """Function to check if the file is tagged as created for Bumblebee or not"""
+#        try:  #FIXME Bumblebee Enable must not be set in comment but somewhere else 
+#            if 'created for Bumblebee' in self.config.get('Desktop Entry','Comment'): return True
+#            else : return False 
+#        except ConfigParser.NoOptionError: return False 
 
-    def unconfigure_file(self):
-        """Function to unconfigure a file configured for Bumblebee : remove the shortcuts or remove the file if it's tagged as created for Bumblebee"""
-        if self.is_created():
-            os.remove(self.file_path)
-            return True
-        else: 
-            self.remove_shortcuts()
-            return False
+#    def unconfigure_file(self):
+#        """Function to unconfigure a file configured for Bumblebee : remove the shortcuts or remove the file if it's tagged as created for Bumblebee"""
+#        if self.is_created():
+#            os.remove(self.file_path)
+#            return True
+#        else: 
+#            self.remove_shortcuts()
+#            return False
 		
-    def remove_shortcuts(self):
-        """Function to remove shorcut section for bumblebee and remove the shortcuts to the desktop file object"""
-        self.config.set('Desktop Entry','Exec',self.config.get('BumblebeeEnable Shortcut Group','Exec'))
-        Shortcuts=self.config.get('Desktop Entry','X-Ayatana-Desktop-Shortcuts')
-        if Shortcuts=='BumblebeeDisable' or Shortcuts=='BumblebeeEnable': self.config.remove_option('Desktop Entry','X-Ayatana-Desktop-Shortcuts')
-        else : self.remove_prepend_option('Desktop Entry','X-Ayatana-Desktop-Shortcuts','BumblebeeDisable\;|BumblebeeEnable\;')
-        self.config.remove_section('BumblebeeDisable Shortcut Group')
-        self.config.remove_section('BumblebeeEnable Shortcut Group')
-        self.write_config_to_file(self.file_path)
+#    def remove_shortcuts(self):
+#        """Function to remove shorcut section for bumblebee and remove the shortcuts to the desktop file object"""
+#        self.config.set('Desktop Entry','Exec',self.config.get('BumblebeeEnable Shortcut Group','Exec'))
+#        Shortcuts=self.config.get('Desktop Entry','X-Ayatana-Desktop-Shortcuts')
+#        if Shortcuts=='BumblebeeDisable' or Shortcuts=='BumblebeeEnable': self.config.remove_option('Desktop Entry','X-Ayatana-Desktop-Shortcuts')
+#        else : self.remove_prepend_option('Desktop Entry','X-Ayatana-Desktop-Shortcuts','BumblebeeDisable\;|BumblebeeEnable\;')
+#        self.config.remove_section('BumblebeeDisable Shortcut Group')
+#        self.config.remove_section('BumblebeeEnable Shortcut Group')
+#        self.write_config_to_file(self.file_path)
 
-    def remove_prepend_option(self,section,option,value):
-        """Function to remove a value from an option inside section of a desktop file object"""
-        if self.config.has_option(section,option) == True: self.config.set(section,option,re.sub(value,'',self.config.get(section,option)))
+#    def remove_prepend_option(self,section,option,value):
+#        """Function to remove a value from an option inside section of a desktop file object"""
+#        if self.config.has_option(section,option) == True: self.config.set(section,option,re.sub(value,'',self.config.get(section,option)))
 
 
 # FUNCTIONS TO CONFIGURE THE EXECUTION OF THE APPLICATION		
 	
-    def set_exec_config(self, mode, failsafe, compression):
-        """Function to set the option for optirun : default, failsafe, on battery, compression"""
-        option=''
-        if failsafe==True: option+='--failsafe '
-        if not (compression == "default" or compression == Config.default_compression) : option+='-c '+ compression + ' '
-        clean_exec= self.config.get('BumblebeeEnable Shortcut Group','Exec')
-        self.config.set('BumblebeeDisable Shortcut Group','Exec','optirun ' + option + clean_exec)
-        if mode == Config.mode_keys['perf']: 
-            self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeDisable', 'BumblebeeEnable')
-        elif mode == Config.mode_keys['eco']: 
-            self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeEnable', 'BumblebeeDisable')
-        else: 
-            self.set_exec_config_default(clean_exec, 'BumblebeeEnable', 'BumblebeeDisable')
-        self.write_config_to_file(self.file_path)
+#    def set_exec_config(self, mode, failsafe, compression):
+#        """Function to set the option for optirun : default, failsafe, on battery, compression"""
+#        option=''
+#        if failsafe==True: option+='--failsafe '
+#        if not (compression == "default" or compression == Config.default_compression) : option+='-c '+ compression + ' '
+#        clean_exec= self.config.get('BumblebeeEnable Shortcut Group','Exec')
+#        self.config.set('BumblebeeDisable Shortcut Group','Exec','optirun ' + option + clean_exec)
+#        if mode == Config.mode_keys['perf']: 
+#            self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeDisable', 'BumblebeeEnable')
+#        elif mode == Config.mode_keys['eco']: 
+#            self.set_exec_config_default('optirun ' + option + clean_exec, 'BumblebeeEnable', 'BumblebeeDisable')
+#        else: 
+#            self.set_exec_config_default(clean_exec, 'BumblebeeEnable', 'BumblebeeDisable')
+#        self.write_config_to_file(self.file_path)
 
 	
     def setOptirunKeys(self, Exec, ShortcutExec, ShortcutList):
