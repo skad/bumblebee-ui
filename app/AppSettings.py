@@ -26,35 +26,59 @@ import gtk
 import os
 import sys
 import fcntl
+import gettext
 import xdg.Menu
 #ORIGINAL MODULE
-import Config
+#import Config
 import DesktopFile
 
+#Import configuration
+import ConfigParser
+uiConfig=ConfigParser.ConfigParser()
+uiConfig.read('bumblebee-ui.conf')
+
+bumblebeeConfig=ConfigParser.ConfigParser()
+bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))
+
+icon_file_directory=uiConfig.get('Common','IconFileDirectory')
+translations_directory=uiConfig.get('Common','TranslationsDirectory')
+menu_file_path=uiConfig.get('Common','MenuFile')
+
+compression_list=uiConfig.get('DesktopFile','OptirunCompressValues').split(';')
+icon_size=uiConfig.getint('DesktopFile','IconSize')
+default_icon_name= uiConfig.get('DesktopFile','DefaultIconName')
+configured_color=uiConfig.get('DesktopFile','ConfiguredColor')
+to_configure_color=uiConfig.get('DesktopFile','ToConfigureColor')
+to_unconfigure_color=uiConfig.get('DesktopFile','ToUnconfigureColor')
+
+#Settings that are not parsed from config file for now:
+mode_keys={'perf':"Performance",
+    'eco':"Power Save",
+    'option':"Optional"}
+
 # I18N MODULE
-import gettext
-gettext.install('bumblebee-ui', os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '../i18n')))
+gettext.install('bumblebee-ui', translations_directory)
 
 #ICON CONFIGURATION
 class IconSet:
     """This small class contain the settings computed for categories"""
     def __init__(self):
         self.icon_theme= gtk.icon_theme_get_default()
-        self.icon_theme.append_search_path(Config.icon_file_directory)
+        self.icon_theme.append_search_path(icon_file_directory)
 
     def get_uri (self, icon_name, icon_size):
         return "file://" + self.get_path(icon_name, icon_size)
 
-    def get_pixbuf (self, icon_name, icon_size=Config.icon_size):
+    def get_pixbuf (self, icon_name, icon_size=icon_size):
         try :
             return self.icon_theme.load_icon(icon_name, icon_size, 0)
         except :
             try : return gtk.gdk.pixbuf_new_from_file_at_size(icon_name, icon_size, icon_size)
-            except : return self.icon_theme.load_icon(Config.default_icon_name, icon_size, 0)
+            except : return self.icon_theme.load_icon(default_icon_name, icon_size, 0)
 
-    def get_path (self, icon_name, icon_size=Config.icon_size):
+    def get_path (self, icon_name, icon_size=icon_size):
         try : return self.icon_theme.lookup_icon(icon_name, icon_size, 0).get_filename()
-        except : self.get_path(Config.default_icon_name)
+        except : self.get_path(default_icon_name)
 
 #TODO Factorize the init which is too long
 class Applications_settings():
@@ -183,7 +207,7 @@ class Applications_settings():
         button.connect("clicked",action, args)
         return button
 
-    def buildMenu(self, menu=xdg.Menu.parse(Config.menu_file_path), category=None):
+    def buildMenu(self, menu=xdg.Menu.parse(menu_file_path), category=None):
         """Function to build the store with this columns  \
         *Application Name or Categorie Name, *File Name, *Application Categorie, \
         *Application Icon Path, Is Not Category, Configured, (Selected by default), \
@@ -195,7 +219,7 @@ class Applications_settings():
                 if category == None :
                     main_category = entry.getName()
                     cat_info= [main_category, None, None, self.icon_set.get_pixbuf(entry.getIcon())] + 3*[False] + 3*[None]
-                    iter=self.app_list.append(None, cat_info + [False, Config.to_configure_color])
+                    iter=self.app_list.append(None, cat_info + [False, to_configure_color])
                     self.categorie_iter.update({main_category:iter})
                     self.buildMenu(entry, main_category)
                 else : self.buildMenu(entry, category)
@@ -206,11 +230,11 @@ class Applications_settings():
                 else : parent_iter=None
                 if app_info[5] == True:
                     self.configured_file_exist=True
-                    self.app_list.append(parent_iter, app_info + [True, Config.configured_color])
+                    self.app_list.append(parent_iter, app_info + [True, configured_color])
                     if app_info[2] :
                         self.add_child_for_categorie(app_info[2])
                         self.app_list[parent_iter][5]=True #Used to only show the categories with configured child
-                else : self.app_list.append(parent_iter, app_info + [False, Config.to_configure_color])
+                else : self.app_list.append(parent_iter, app_info + [False, to_configure_color])
 
     def build_select_view(self):
         # APPLICATION OR CATEGORIE NAME COLUMN
@@ -256,13 +280,13 @@ class Applications_settings():
         self.app_list[row][6] = not self.app_list[row][6]
         Configured, Selected= self.app_list[row][5], self.app_list[row][6]
         if Configured==True and Selected==False : #The app will be Unconfigured
-            self.app_list[row][10],self.app_list[row][11]=True,Config.to_unconfigure_color
+            self.app_list[row][10],self.app_list[row][11]=True,to_unconfigure_color
             self.to_unconfigure_file.update({self.app_list[row][1]:self.app_list.get_iter(row)})
         elif Configured==True and Selected==True : #The configured app is reselected: Nothing to apply
-            self.app_list[row][10],self.app_list[row][11]=True,Config.configured_color
+            self.app_list[row][10],self.app_list[row][11]=True,configured_color
             del self.to_unconfigure_file[self.app_list[row][1]]
         elif Configured==False and Selected==True : #The app will be Configured
-            self.app_list[row][10],self.app_list[row][11]=True,Config.to_configure_color
+            self.app_list[row][10],self.app_list[row][11]=True,to_configure_color
             self.to_configure_file.update({self.app_list[row][1]:self.app_list.get_iter(row)})
         elif Configured==False and Selected==False : #The app is not configured and unselected: Nothing to apply
             self.app_list[row][10]=False
@@ -283,11 +307,12 @@ class Applications_settings():
         self.config_app_view.append_column(self.column)
 
         # MODE, DRIVER AND COMPRESSION COLUMN
-        self.build_combo_column(_(u"Mode"), 7, Config.mode_keys.values())
+        self.build_combo_column(_(u"Mode"), 7, mode_keys.values())
 
         self.build_config_column (_(u"Failsafe"), 8)
 
-        self.build_combo_column(_(u"Compression"), 9, ["default"] + Config.compression_list)
+        #TODO : This need for the compression list is problematic : the parsing should be independant
+        self.build_combo_column(_(u"Compression"), 9, ["default"] + compression_list)
 
         self.config_app_view.set_level_indentation(20)
         self.config_app_view.expand_all()
@@ -335,11 +360,11 @@ class Applications_settings():
     def apply_app_set (self,widget,data=None):
         for file_name, iter in self.to_configure_file.iteritems(): #The app is to configure
             self.apply_app_change ( iter, [DesktopFile.SetDesktop(file_name).setEntry, self.add_child_for_categorie],
-                                    True, Config.mode_keys['option'], True, Config.configured_color)
+                                    True, mode_keys['option'], True, configured_color)
         self.to_configure_file.clear()
         for file_name, iter in self.to_unconfigure_file.iteritems(): #The app is to unconfigure
             self.apply_app_change ( iter, [DesktopFile.SetDesktop(file_name).unsetEntry, self.remove_child_for_categorie],
-                                    False, False, False, Config.to_configure_color)
+                                    False, False, False, to_configure_color)
         self.to_unconfigure_file.clear()
         self.config_app_view.expand_all()
 

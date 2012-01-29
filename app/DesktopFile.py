@@ -30,20 +30,26 @@ from xdg.DesktopEntry import *
 # TODO : Get rid of all config except the one in model files and .cfg file
 # TODO : Find the best way to configure desktop files : use MODEL desktop file to check the mode, and set the files.
 
-import Config
+#import Config
 
-#Get Configurations
+#Get Configurations from configuration file
 import ConfigParser
 uiConfig=ConfigParser.ConfigParser()
 uiConfig.read('bumblebee-ui.conf')
 
 bumblebeeConfig=ConfigParser.ConfigParser()
 bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))
+
 default_compression= bumblebeeConfig.get('optirun','VGLTransport')
+compression_list=uiConfig.get('DesktopFile','OptirunCompressValues').split(';')
 
 data_dirs=xdg.BaseDirectory.xdg_data_dirs
 data_home=xdg.BaseDirectory.xdg_data_home
-modes=Config.mode_keys
+
+#Settings that are not parsed from config file for now:
+modes={'perf':"Performance",
+    'eco':"Power Save",
+    'option':"Optional"}
 
 class GetDesktop():
     def __init__(self, entry, category=None):
@@ -98,11 +104,11 @@ class GetDesktop():
     def setTrue( arg, next_arg=None): return {arg:True}
     
     def getCompression( arg, next_arg=None, default=default_compression): 
-        if (next_arg in Config.compression_list and next_arg != default): return {arg:next_arg}
+        if (next_arg in compression_list and next_arg != default): return {arg:next_arg}
     
     def getExecConfig(self, Exec, i=-1, 
         case={'--failsafe':setTrue, '-f':setTrue, '-c':getCompression},
-        skip=['optirun', 'ecoptirun', '-d', ':0', ':1', ':2'] + Config.compression_list):
+        skip=['optirun', 'ecoptirun', '-d', ':0', ':1', ':2'] + compression_list):
         """Function to search for configuration inside optirun arguments in the desktop file object : 
         Force_eco, Failsafe, Compression"""
         arg_list=Exec.split(' ')	

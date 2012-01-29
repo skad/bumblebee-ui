@@ -33,6 +33,22 @@ msgstr "Applications préférées"
 msgid "Configure Apps"
 msgstr "Configurer les applications"
 
+#: bumblebee-indicator
+msgid "Bumblebee : ON"
+msgstr "Bumblebee : ON"
+
+#: bumblebee-indicator
+msgid "Bumblebee is in use"
+msgstr "Bumblebee est utilisé"
+
+#: bumblebee-indicator
+msgid "Bumblebee : OFF"
+msgstr "Bumblebee : OFF"
+
+#: bumblebee-indicator
+msgid "Bumblebee is not used anymore"
+msgstr "Bumblebee n'est plus utilisé"
+
 #: app/AppSettings.py
 msgid "Bumblebee - Applications Settings"
 msgstr "Bumblebee - Paramètres des Applications "
@@ -76,20 +92,4 @@ msgstr "Sans échec"
 #: app/AppSettings.py
 msgid "Compression"
 msgstr "Compression"
-
-#: app/Config.py
-msgid "Bumblebee : ON"
-msgstr "Bumblebee : ON"
-
-#: app/Config.py
-msgid "Bumblebee is in use"
-msgstr "Bumblebee est utilisé"
-
-#: app/Config.py
-msgid "Bumblebee : OFF"
-msgstr "Bumblebee : OFF"
-
-#: app/Config.py
-msgid "Bumblebee is not used anymore"
-msgstr "Bumblebee n'est plus utilisé"
 

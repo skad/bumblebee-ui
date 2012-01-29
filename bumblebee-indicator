@@ -26,26 +26,48 @@ import gtk
 import gobject
 import appindicator
 import pynotify
-
+import gettext
 import xdg.Menu
 
 # SYSTEM MODULE
 import os
 import subprocess
 import sys
-
-# ORIGINAL CLASS
-import app.DesktopFile
-
-#Parse configuration
-import app.Config
-
-from app.AppSettings import IconSet
 import fcntl
 
-# I18N MODULE
-import gettext
-gettext.install('bumblebee-ui', os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'i18n')))
+# ORIGINAL CLASS
+from app.DesktopFile import GetDesktop
+from app.AppSettings import IconSet
+
+#Get configurations from config file
+import ConfigParser
+uiConfig=ConfigParser.ConfigParser()
+uiConfig.read('bumblebee-indicator.conf')
+
+bumblebeeConfig=ConfigParser.ConfigParser()
+bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))
+
+vgl_display=bumblebeeConfig.get('bumblebeed','VirtualDisplay').replace(":","")
+
+icon_file_directory=uiConfig.get('Common','IconFileDirectory')
+translations_directory=uiConfig.get('Common','TranslationsDirectory')
+menu_file_path=uiConfig.get('Common','MenuFile')
+
+applications_setting_path=uiConfig.get('Indicator','DesktopFileEditorPath')
+
+
+#Settings that are not parsed from config file for now:
+default_preferred_apps =[ ['Glxgears', ['glxgears']] ,
+                        ['Glxspheres', ['glxspheres']] ]
+
+gettext.install('bumblebee-ui', translations_directory)
+
+#Notification messages :
+#TODO Revert when the possibility to turn off the card is back
+attention_label=_(u"Bumblebee : ON")
+attention_comment=_(u"Bumblebee is in use")
+active_label=_(u"Bumblebee : OFF")
+active_comment=_(u"Bumblebee is not used anymore")
 
 class BumblebeeIndicator():
 #TODO There must be a better way to get the icon than the URI
@@ -61,13 +83,13 @@ class BumblebeeIndicator():
     def __init__(self):
         self.ind = appindicator.Indicator ("bumblebee-indicator", "bumblebee-indicator", appindicator.CATEGORY_HARDWARE)
         self.ind.set_status (appindicator.STATUS_ACTIVE)
-        self.ind.set_icon_theme_path(app.Config.icon_file_directory)
+        self.ind.set_icon_theme_path(icon_file_directory)
 #TODO The icons style and accesibility must be enhanced : see icons/test directory
-        self.ind.set_icon(app.Config.icon_file_directory + "bumblebee-indicator.svg",_(u'Bumblebee is unactive'))
-        self.ind.set_attention_icon (app.Config.icon_file_directory + "bumblebee-indicator-active.svg",_(u'Bumblebee is active'))
+        self.ind.set_icon(icon_file_directory + "bumblebee-indicator.svg",_(u'Bumblebee is unactive'))
+        self.ind.set_attention_icon (icon_file_directory + "bumblebee-indicator-active.svg",_(u'Bumblebee is active'))
 
         self.card_state=False
-        self.lock_file = "/tmp/.X%s-lock" % app.Config.vgl_display
+        self.lock_file = "/tmp/.X%s-lock" % vgl_display
 
         self.build_menu()
 
@@ -91,7 +113,7 @@ class BumblebeeIndicator():
         self.prefered_app_submenu.connect('activate', self.update_menu)
         self.menu.append(self.prefered_app_submenu)
 
-        if app.Config.applications_setting_path :
+        if applications_setting_path :
             app_settings = gtk.MenuItem(_(u"Configure Apps"))
             app_settings.connect("activate", self.app_configure)
             self.menu.append(app_settings)
@@ -114,11 +136,11 @@ class BumblebeeIndicator():
 # FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE LOCAL DESKTOP FILES
     def update_menu(self, widget=None):
         pref_menu=gtk.Menu()
-        for item_info in app.Config.default_preferred_apps:
+        for item_info in default_preferred_apps:
             self.add_submenu_item( pref_menu, item_info)
-        if app.Config.applications_setting_path:
+        if applications_setting_path:
             self.build_menu_separator( pref_menu )
-            self.get_configured_entries( pref_menu , xdg.Menu.parse(app.Config.menu_file_path))
+            self.get_configured_entries( pref_menu , xdg.Menu.parse(menu_file_path))
         pref_menu.show()
         self.prefered_app_submenu.set_submenu( pref_menu )
 
@@ -135,7 +157,7 @@ class BumblebeeIndicator():
             if isinstance(entry, xdg.Menu.Menu):
                 self.get_configured_entries(submenu, entry)
             elif isinstance(entry, xdg.Menu.MenuEntry):
-                desktopEntry=app.DesktopFile.GetDesktop(entry)
+                desktopEntry=DesktopFile.GetDesktop(entry)
                 if desktopEntry.isConfigured():
                     self.add_submenu_item(submenu, desktopEntry.getConfiguredEntry())
 
@@ -157,14 +179,14 @@ class BumblebeeIndicator():
 # FUNCTIONS TO SET THE STATE OF THE INDICATOR AND LAUNCH NOTIFICATION
     def set_attention_state(self, notify=True):
         self.set_status(True, appindicator.STATUS_ATTENTION,
-                        app.Config.attention_label,
-                        app.Config.attention_comment,
+                        attention_label,
+                        attention_comment,
                         "bumblebee-indicator-active", notify)
 
     def set_active_state(self, notify=True):
         self.set_status(False, appindicator.STATUS_ACTIVE,
-                        app.Config.active_label,
-                        app.Config.active_comment,
+                        active_label,
+                        active_comment,
                         "bumblebee-indicator", notify)
 
     def set_status(self, status, indicator, label, comment, icon, notify):
@@ -177,7 +199,7 @@ class BumblebeeIndicator():
 # FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
 
     def app_configure(self,widget):
-        self.call_app(widget, [ app.Config.applications_setting_path ])
+        self.call_app(widget, [ applications_setting_path ])
         #Applications_settings()
 
 # FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR
