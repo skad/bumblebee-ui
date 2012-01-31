@@ -17,9 +17,11 @@
 #
 ### END LICENSE
 
-cp icons/*.* /usr/share/icons/hicolor/48x48/apps/
+cp icons/*.svg /usr/share/icons/hicolor/scalable/apps/
 mkdir /usr/share/bumblebee-ui/
-cp app/*.* /usr/share/bumblebee-ui/
+cp *.conf /etc/bumblebee/
+cp app/*.conf /etc/bumblebee/
+cp app/*.py /usr/share/bumblebee-ui/
 cp bumblebee-app-settings.desktop /usr/share/applications/
 cp bumblebee-indicator.desktop /usr/share/applications/
 ln -s /usr/share/bumblebee-ui/AppSettings.py /usr/local/bin/bumblebee-app-settings

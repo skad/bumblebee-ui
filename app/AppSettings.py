@@ -28,14 +28,14 @@ import sys
 import fcntl
 import gettext
 import xdg.Menu
+
 #ORIGINAL MODULE
-#import Config
 import DesktopFile
 
 #Import configuration
 import ConfigParser
 uiConfig=ConfigParser.ConfigParser()
-uiConfig.read('bumblebee-ui.conf')
+uiConfig.read('/etc/bumblebee/bumblebee-ui.conf')
 
 bumblebeeConfig=ConfigParser.ConfigParser()
 bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))

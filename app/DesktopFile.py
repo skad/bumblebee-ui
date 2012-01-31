@@ -35,7 +35,7 @@ from xdg.DesktopEntry import *
 #Get Configurations from configuration file
 import ConfigParser
 uiConfig=ConfigParser.ConfigParser()
-uiConfig.read('bumblebee-ui.conf')
+uiConfig.read('/etc/bumblebee/bumblebee-ui.conf')
 
 bumblebeeConfig=ConfigParser.ConfigParser()
 bumblebeeConfig.read(uiConfig.get('Common', 'ConfigPath'))
