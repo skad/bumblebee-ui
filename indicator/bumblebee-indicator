@@ -74,10 +74,10 @@ class BumblebeeIndicator():
 #TODO There must be a better way to get the icon than the URI
 #FIXME The notification must be replaced when still visible
     def notify_state(self, title, msg, icon_name):
-        self.notification= pynotify.Notification(title, msg, IconSet().get_uri(icon_name,48))
+        print "file://" + icon_file_directory + icon_name + ".svg"
+        self.notification= pynotify.Notification(title, msg, "file://" + icon_file_directory + icon_name + ".svg")
         self.notification.set_urgency(pynotify.URGENCY_CRITICAL)
-        #FIXME The notification is to slow and this doesn't work
-        #self.notification.set_timeout(1000)
+        #self.notification.set_timeout(2)
         self.notification.show()
 
 # INITIALIZATION OF INDICATOR AND MENU
@@ -138,7 +138,7 @@ class BumblebeeIndicator():
     def add_submenu_item(self, submenu, item_info):
         [Name, Exec] = item_info
         subitem = gtk.MenuItem(label=Name)
-        subitem.connect("activate", self.call_app, ['optirun','-f'] + Exec)
+        subitem.connect("activate", self.call_app, ['optirun'] + Exec)
         subitem.show()
         submenu.append( subitem )
 
