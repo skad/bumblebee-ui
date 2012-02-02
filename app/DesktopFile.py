@@ -51,6 +51,8 @@ modes={'perf':"Performance",
     'eco':"Power Save",
     'option':"Optional"}
 
+use_ayatana_shortcuts=True
+
 class GetDesktop():
     def __init__(self, entry, category=None):
         self.desktop_file_id = list(entry.DesktopFileID.rsplit('.',1)) + [category]
@@ -63,9 +65,26 @@ class GetDesktop():
     def isConfigured(self):
         """Function to check if the desktop file is configured for Bumblebee or not"""
         if self.isLocal() \
-        and self.desktopEntry.get(key='X-Ayatana-Desktop-Shortcuts') \
+        and self.hasConfigurations():
+            return True
+        else : return False
+    
+    def hasConfigurations(self):
+        if self.hasOptirunCommand() or self.hasShortcuts() :
+            return True
+        else: return False
+    
+    def hasOptirunCommand(self):
+        """Function to check if the Exec field has an optirun argument"""
+        if 'optirun ' in self.desktopEntry.get(key='Exec'):
+            return True
+        else : return False      
+
+    def hasShortcuts(self):
+        """Function to check if the desktop file contain ayatana shorcuts or not"""
+        if self.desktopEntry.get(key='X-Ayatana-Desktop-Shortcuts') \
         and self.desktopEntry.get(key='Exec', group='BumblebeeDisable Shortcut Group') \
-        and self.desktopEntry.get(key='Exec', group='BumblebeeEnable Shortcut Group'):    
+        and self.desktopEntry.get(key='Exec', group='BumblebeeEnable Shortcut Group'):
             return True
         else : return False
 
