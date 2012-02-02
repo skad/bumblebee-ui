@@ -27,7 +27,6 @@ import gobject
 import appindicator
 import pynotify
 import gettext
-import xdg.Menu
 
 # SYSTEM MODULE
 import os
@@ -37,8 +36,7 @@ import fcntl
 
 # ORIGINAL CLASS
 #TODO : Make the links to desktop file editor optional
-from app.DesktopFile import GetDesktop
-from app.AppSettings import IconSet
+
 
 #Get configurations from config file
 import ConfigParser
@@ -93,9 +91,7 @@ class BumblebeeIndicator():
 
         self.card_state=False
         self.lock_file = "/tmp/.X%s-lock" % vgl_display
-
         self.build_menu()
-
         self.menu.show()
         self.ind.set_menu(self.menu)
 
@@ -115,11 +111,6 @@ class BumblebeeIndicator():
         self.update_menu()
         self.prefered_app_submenu.connect('activate', self.update_menu)
         self.menu.append(self.prefered_app_submenu)
-
-        if applications_setting_path :
-            app_settings = gtk.MenuItem(_(u"Configure Apps"))
-            app_settings.connect("activate", self.app_configure)
-            self.menu.append(app_settings)
 
 #TODO An UI to configure Bumblebee would be nice
 
@@ -141,9 +132,6 @@ class BumblebeeIndicator():
         pref_menu=gtk.Menu()
         for item_info in default_preferred_apps:
             self.add_submenu_item( pref_menu, item_info)
-        if applications_setting_path:
-            self.build_menu_separator( pref_menu )
-            self.get_configured_entries( pref_menu , xdg.Menu.parse(menu_file_path))
         pref_menu.show()
         self.prefered_app_submenu.set_submenu( pref_menu )
 
@@ -153,16 +141,6 @@ class BumblebeeIndicator():
         subitem.connect("activate", self.call_app, ['optirun','-f'] + Exec)
         subitem.show()
         submenu.append( subitem )
-
-# FUNCTIONS TO BUILD THE "PREFERRED APP" MENU FROM THE MENU FILE
-    def get_configured_entries(self, submenu, menu):
-        for entry in menu.getEntries():
-            if isinstance(entry, xdg.Menu.Menu):
-                self.get_configured_entries(submenu, entry)
-            elif isinstance(entry, xdg.Menu.MenuEntry):
-                desktopEntry=GetDesktop(entry)
-                if desktopEntry.isConfigured():
-                    self.add_submenu_item(submenu, desktopEntry.getConfiguredEntry())
 
 # FUNCTIONS TO CHECK FOR THE STATE OF THE INDICATOR
     def initial_state_checker(self):
@@ -199,12 +177,6 @@ class BumblebeeIndicator():
         self.switch.set_label(label)
         self.switch.set_active(status)
 
-# FUNCTION TO DEFINE THE APPLICATIONS SETTING LINK IN THE INDICATOR
-
-    def app_configure(self,widget):
-        self.call_app(widget, [ applications_setting_path ])
-        #Applications_settings()
-
 # FUNCTION TO LAUNCH THE APPS WITHIN THE INDICATOR
     def call_app(self, widget, app_exec):
         print app_exec
@@ -232,4 +204,5 @@ if __name__ == "__main__":
     except IOError:
         print "Another instance of bumblebee-indicator is running : Quit"
         quit()
+
 
